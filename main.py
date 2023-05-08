@@ -1,5 +1,0 @@
-def lance():
-
-    return 'this'
-
-
