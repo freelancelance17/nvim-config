@@ -134,6 +134,16 @@ _G.packer_plugins = {
     path = "/home/lance/.local/share/nvim/site/pack/packer/start/mason.nvim",
     url = "https://github.com/williamboman/mason.nvim"
   },
+  nerdtree = {
+    loaded = true,
+    path = "/home/lance/.local/share/nvim/site/pack/packer/start/nerdtree",
+    url = "https://github.com/preservim/nerdtree"
+  },
+  ["nerdtree-git-plugin"] = {
+    loaded = true,
+    path = "/home/lance/.local/share/nvim/site/pack/packer/start/nerdtree-git-plugin",
+    url = "https://github.com/Xuyuanp/nerdtree-git-plugin"
+  },
   ["nvim-autopairs"] = {
     loaded = true,
     path = "/home/lance/.local/share/nvim/site/pack/packer/start/nvim-autopairs",
@@ -158,11 +168,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/lance/.local/share/nvim/site/pack/packer/start/nvim-lspinstall",
     url = "https://github.com/anott03/nvim-lspinstall"
-  },
-  ["nvim-tree.lua"] = {
-    loaded = true,
-    path = "/home/lance/.local/share/nvim/site/pack/packer/start/nvim-tree.lua",
-    url = "https://github.com/nvim-tree/nvim-tree.lua"
   },
   ["nvim-treesitter"] = {
     loaded = true,
@@ -209,6 +214,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/lance/.local/share/nvim/site/pack/packer/start/trouble.nvim",
     url = "https://github.com/folke/trouble.nvim"
+  },
+  ["vim-devicons"] = {
+    loaded = true,
+    path = "/home/lance/.local/share/nvim/site/pack/packer/start/vim-devicons",
+    url = "https://github.com/ryanoasis/vim-devicons"
   },
   ["vim-floaterm"] = {
     loaded = true,

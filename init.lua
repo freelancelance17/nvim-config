@@ -1,4 +1,3 @@
-
 -- taken from https://bryankegley.me/posts/nvim-getting-started/
 
 -- VIM TREE:disable netrw at the very start of your init.lua (strongly advised)
@@ -68,7 +67,7 @@ packer.startup(function()
   local use = use
   -- lsp server
   use 'neovim/nvim-lspconfig' -- https://github.com/neovim/nvim-lspconfig
-  use 'nvim-lua/completion-nvim' -- https://github.com/nvim-lua/completion-nvim
+  -- use 'nvim-lua/completion-nvim' -- https://github.com/nvim-lua/completion-nvim
   use 'anott03/nvim-lspinstall'-- https://github.com/anott03/nvim-lspinstall
   -- more lsp
   use 'williamboman/mason.nvim' -- https://github.com/williamboman/mason.nvim
@@ -144,11 +143,11 @@ configs.setup {
 -- LSP SERVER CONFIG 
 local lspconfig = require'lspconfig'
 require'lspconfig'.pyright.setup{} -- https://github.com/neovim/nvim-lspconfig
-local completion = require'completion'
-local function custom_on_attach(client)
-  print('Attaching to ' .. client.name)
-  completion.on_attach(client)
-end
+-- local completion = require'completion'
+-- -- local function custom_on_attach(client)
+--   print('Attaching to ' .. client.name)
+--   completion.on_attach(client)
+-- end
 local default_config = {
   on_attach = custom_on_attach,
 }
@@ -384,3 +383,5 @@ key_mapper('t', "<Esc>", "<C-\\><C-n>:q<CR>")
 
 -- Comment setup
 require('Comment').setup()
+
+
