@@ -120,6 +120,16 @@ packer.startup(function()
   use 'tpope/vim-surround' -- https://github.com/tpope/vim-surround
   use 'RRethy/vim-illuminate'
   use 'numToStr/Comment.nvim' -- https://github.com/numToStr/Comment.nvim
+  use({
+   "dpayne/CodeGPT.nvim",
+   requires = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+   },
+   config = function()
+      require("codegpt.config")
+   end
+  })
   end
 )
 
