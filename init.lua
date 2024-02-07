@@ -395,3 +395,21 @@ key_mapper('t', "<Esc>", "<C-\\><C-n>:q<CR>")
 require('Comment').setup()
 
 
+
+
+--- AUTO COMMANDS FOR FORMATTING ON SAVE -- 
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*.py",
+  callback = function()
+    vim.cmd([[!black %]])
+  end,
+})
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = {"*.js", "*.jsx"},
+  callback = function()
+    local file = vim.fn.expand('%:p') -- Get the full path of the current file
+    local escaped_file = vim.fn.shellescape(file) -- Escape the filename for shell usage
+    vim.cmd('!' .. 'prettier --write ' .. escaped_file)
+  end,
+})
