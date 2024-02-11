@@ -120,8 +120,9 @@ packer.startup(function()
   use 'tpope/vim-surround' -- https://github.com/tpope/vim-surround
   use 'RRethy/vim-illuminate'
   use 'numToStr/Comment.nvim' -- https://github.com/numToStr/Comment.nvim
+  use 'sainnhe/gruvbox-material' -- https://github.com/numToStr/Comment.nvim
   use({
-   "dpayne/CodeGPT.nvim",
+   "freelancelance17/CodeGPT.nvim",
    requires = {
       "MunifTanjim/nui.nvim",
       "nvim-lua/plenary.nvim",
@@ -130,6 +131,19 @@ packer.startup(function()
       require("codegpt.config")
    end
   })
+  use {
+    'nvim-lualine/lualine.nvim',
+    requires = { 'nvim-tree/nvim-web-devicons', opt = true }
+  }
+  use 'hedyhli/outline.nvim'
+  use {
+    "ahmedkhalf/project.nvim",
+    config = function()
+      require("project_nvim").setup {
+        manual_mode = true
+      }
+    end
+  }
   end
 )
 
@@ -190,9 +204,11 @@ key_mapper('n', '<C-p>', ':lua require"telescope.builtin".find_files()<CR>')
 key_mapper('n', '<leader>fs', ':lua require"telescope.builtin".live_grep()<CR>')
 key_mapper('n', '<leader>fh', ':lua require"telescope.builtin".help_tags()<CR>')
 key_mapper('n', '<leader>fb', ':lua require"telescope.builtin".buffers()<CR>')
+key_mapper('n', '<leader>fr', '<cmd>Telescope projects<CR>')
+key_mapper('n', '<leader>fd', '<cmd>Telescope lsp_definitions<CR>')
 
 -- initiate oceanic next theme
-vim.cmd 'colorscheme OceanicNext'
+--vim.cmd 'colorscheme OceanicNext'
 
 -- nvim tree
 vim.opt.termguicolors = true
@@ -394,9 +410,6 @@ key_mapper('t', "<Esc>", "<C-\\><C-n>:q<CR>")
 -- Comment setup
 require('Comment').setup()
 
-
-
-
 --- AUTO COMMANDS FOR FORMATTING ON SAVE -- 
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = "*.py",
@@ -413,3 +426,52 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     vim.cmd('!' .. 'prettier --write ' .. escaped_file)
   end,
 })
+
+-- start material gruvbox 
+-- Important!!
+if vim.fn.has('termguicolors') == 1 then
+  vim.o.termguicolors = true
+end
+
+-- For dark version.
+vim.o.background = 'dark'
+
+-- For light version.
+-- vim.o.background = 'light' -- Uncomment this line if you prefer the light version.
+
+-- Set contrast for Gruvbox Material.
+-- This configuration option should be placed before loading the colorscheme.
+vim.g.gruvbox_material_background = 'soft'
+
+-- For better performance
+vim.g.gruvbox_material_better_performance = 1
+
+-- Load the colorscheme
+vim.cmd [[colorscheme gruvbox-material]]
+require('lualine').setup {
+  options = { theme  = 'gruvbox' },
+}
+
+--end material gruvbox 
+
+-- set word wrap on for text files 
+vim.api.nvim_exec([[
+  autocmd BufRead,BufNewFile *.txt set wrap
+]], false)
+
+-- open trouble on all python files
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "python",
+  callback = function()
+    vim.cmd("Trouble")
+    vim.cmd("Outline")
+  end,
+})
+
+-- outline 
+require("outline").setup({})
+
+-- projects integration with telescope
+require("project_nvim").setup({})
+require('telescope').load_extension('projects')
+
