@@ -144,6 +144,7 @@ packer.startup(function()
       }
     end
   }
+  use 'aspeddro/gitui.nvim'
   end
 )
 
@@ -206,6 +207,8 @@ key_mapper('n', '<leader>fh', ':lua require"telescope.builtin".help_tags()<CR>')
 key_mapper('n', '<leader>fb', ':lua require"telescope.builtin".buffers()<CR>')
 key_mapper('n', '<leader>fr', '<cmd>Telescope projects<CR>')
 key_mapper('n', '<leader>fd', '<cmd>Telescope lsp_definitions<CR>')
+-- mappings for gitui
+key_mapper('n', '<leader>g', '<cmd>Gitui<CR>')
 
 -- initiate oceanic next theme
 --vim.cmd 'colorscheme OceanicNext'
@@ -475,3 +478,6 @@ require("outline").setup({})
 require("project_nvim").setup({})
 require('telescope').load_extension('projects')
 
+-- gitui 
+require("gitui").setup()
+  
