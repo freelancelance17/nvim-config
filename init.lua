@@ -414,14 +414,14 @@ key_mapper('t', "<Esc>", "<C-\\><C-n>:q<CR>")
 require('Comment').setup()
 
 --- AUTO COMMANDS FOR FORMATTING ON SAVE -- 
-vim.api.nvim_create_autocmd("BufWritePre", {
+vim.api.nvim_create_autocmd("BufWritePost", {
   pattern = "*.py",
   callback = function()
-    vim.cmd([[!black %]])
+    vim.cmd([[!black ]])
   end,
 })
 
-vim.api.nvim_create_autocmd("BufWritePre", {
+vim.api.nvim_create_autocmd("BufWritePost", {
   pattern = {"*.js", "*.jsx"},
   callback = function()
     local file = vim.fn.expand('%:p') -- Get the full path of the current file
