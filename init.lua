@@ -50,18 +50,22 @@ local vim = vim
 local execute = vim.api.nvim_command
 
 local fn = vim.fn
+
 -- ensure that packer is installed
-local install_path = fn.stdpath('data')..'/site/pack/packer/opt/packer.nvim'
+local fn = vim.fn
+local cmd = vim.cmd
+local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
+
 if fn.empty(fn.glob(install_path)) > 0 then
-    execute('!git clone https://github.com/wbthomason/packer.nvim '..install_path)
-    execute 'packadd packer.nvim'
+    cmd('!git clone https://github.com/wbthomason/packer.nvim '..install_path)
 end
-vim.cmd('packadd packer.nvim')
-local packer = require'packer'
-local util = require'packer.util'
-packer.init({
-  package_root = util.join_paths(vim.fn.stdpath('data'), 'site', 'pack')
-})
+
+cmd('packadd packer.nvim')
+
+local packer = require('packer')
+local util = require('packer.util')
+
+packer.init({package_root = util.join_paths(fn.stdpath('data'), 'site', 'pack')})
 --- startup and add configure plugins
 packer.startup(function()
   local use = use
@@ -145,6 +149,11 @@ packer.startup(function()
     end
   }
   use 'aspeddro/gitui.nvim'
+  use {
+    "akinsho/toggleterm.nvim", tag = '*', config = function()
+      require("toggleterm").setup()
+  end
+  }
   end
 )
 
@@ -207,6 +216,7 @@ key_mapper('n', '<leader>fh', ':lua require"telescope.builtin".help_tags()<CR>')
 key_mapper('n', '<leader>fb', ':lua require"telescope.builtin".buffers()<CR>')
 key_mapper('n', '<leader>fr', '<cmd>Telescope projects<CR>')
 key_mapper('n', '<leader>fd', '<cmd>Telescope lsp_definitions<CR>')
+key_mapper('n', '<C-t>', '<cmd>ToggleTerm<CR>')
 -- mappings for gitui
 key_mapper('n', '<leader>g', '<cmd>Gitui<CR>')
 
@@ -417,7 +427,7 @@ require('Comment').setup()
 vim.api.nvim_create_autocmd("BufWritePost", {
   pattern = "*.py",
   callback = function()
-    vim.cmd([[!black ]])
+    vim.cmd([[!black % ]])
   end,
 })
 
@@ -480,4 +490,5 @@ require('telescope').load_extension('projects')
 
 -- gitui 
 require("gitui").setup()
-  
+--toggleterm 
+require("toggleterm").setup()
