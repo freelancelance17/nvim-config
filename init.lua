@@ -185,6 +185,7 @@ require'lspconfig'.pyright.setup{} -- https://github.com/neovim/nvim-lspconfig
 local default_config = {
   on_attach = custom_on_attach,
 }
+
 -- setup language servers here
 lspconfig.tsserver.setup(default_config)
 
@@ -432,7 +433,7 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 })
 
 vim.api.nvim_create_autocmd("BufWritePost", {
-  pattern = {"*.js", "*.jsx"},
+  pattern = {"*.js", "*.jsx", "*.tsx"},
   callback = function()
     local file = vim.fn.expand('%:p') -- Get the full path of the current file
     local escaped_file = vim.fn.shellescape(file) -- Escape the filename for shell usage
@@ -492,3 +493,5 @@ require('telescope').load_extension('projects')
 require("gitui").setup()
 --toggleterm 
 require("toggleterm").setup()
+
+vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
