@@ -1,5 +1,4 @@
 -- taken from https://bryankegley.me/posts/nvim-getting-started/
-
 -- VIM TREE:disable netrw at the very start of your init.lua (strongly advised)
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
@@ -84,7 +83,6 @@ packer.startup(function()
   use 'nvim-lua/telescope.nvim'-- https://github.com/nvim-lua/telescope.nvim
   use 'jremmen/vim-ripgrep'-- https://github.com/jremmen/vim-ripgrep
   -- theme
-  use 'roflolilolmao/oceanic-next.nvim'-- https://github.com/roflolilolmao/oceanic-next.nvim
   -- file tree
   use 'preservim/nerdtree'-- https://github.com/preservim/nerdtree
   use 'nvim-tree/nvim-web-devicons'-- https://github.com/nvim-tree/nvim-web-devicons
@@ -124,7 +122,6 @@ packer.startup(function()
   use 'tpope/vim-surround' -- https://github.com/tpope/vim-surround
   use 'RRethy/vim-illuminate'
   use 'numToStr/Comment.nvim' -- https://github.com/numToStr/Comment.nvim
-  use 'sainnhe/gruvbox-material' -- https://github.com/numToStr/Comment.nvim
   use({
    "freelancelance17/CodeGPT.nvim",
    requires = {
@@ -140,6 +137,7 @@ packer.startup(function()
     requires = { 'nvim-tree/nvim-web-devicons', opt = true }
   }
   use 'hedyhli/outline.nvim'
+  use 'folke/tokyonight.nvim'
   use {
     "ahmedkhalf/project.nvim",
     config = function()
@@ -177,11 +175,6 @@ configs.setup {
 -- LSP SERVER CONFIG 
 local lspconfig = require'lspconfig'
 require'lspconfig'.pyright.setup{} -- https://github.com/neovim/nvim-lspconfig
--- local completion = require'completion'
--- -- local function custom_on_attach(client)
---   print('Attaching to ' .. client.name)
---   completion.on_attach(client)
--- end
 local default_config = {
   on_attach = custom_on_attach,
 }
@@ -192,7 +185,7 @@ lspconfig.tsserver.setup(default_config)
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
   vim.lsp.diagnostic.on_publish_diagnostics, {
     underline = true,
-    virtual_text = false,
+    virtual_text = true,
     signs = true,
     update_in_insert = true,
   }
@@ -318,13 +311,6 @@ require('lspconfig')['pyright'].setup {
 capabilities = capabilities
 }
 
--- set up whick key
-require("which-key").setup {
-    -- your configuration comes here
-    -- or leave it empty to use the default settings
-    -- refer to the configuration section below
-    }
-
 -- setup for rust-tools 
 local rt = require("rust-tools")
 
@@ -338,6 +324,7 @@ rt.setup({
     end,
   },
 })
+
 -- LSP Diagnostics Options Setup 
 local sign = function(opts)
   vim.fn.sign_define(opts.name, {
@@ -381,33 +368,13 @@ require("mason").setup({
         },
     }
 })
+
 require("mason-lspconfig").setup()
 
--- barbar config
 -- Move to previous/next
 key_mapper('n', '<C-PageUp>', '<Cmd>BufferPrevious<CR>')
 key_mapper('n', '<C-PageDown>', '<Cmd>BufferNext<CR>')
--- Re-order to previous/next
---key_mapper('n', '<C-PageUp>', '<Cmd>BufferMovePrevious<CR>')
---key_mapper('n', '<C-PageDown>', '<Cmd>BufferMoveNext<CR>')
--- Goto buffer in position...
---key_mapper('n', '<A-1>', '<Cmd>BufferGoto 1<CR>')
--- Close buffer
 key_mapper('n', '<A-c>', '<Cmd>BufferClose<CR>')
--- Wipeout buffer
---                 :BufferWipeout
--- Close commands
---                 :BufferCloseAllButCurrent
---                 :BufferCloseAllButPinned
---                 :BufferCloseAllButCurrentOrPinned
---                 :BufferCloseBuffersLeft
---                 :BufferCloseBuffersRight
--- Magic buffer-picking mode
--- map('n', '<C-p>', '<Cmd>BufferPick<CR>', opts)
-
--- Other:
--- :BarbarEnable - enables barbar (enabled by default)
--- :BarbarDisable - very bad command, should never be used
 
 require'barbar'.setup {
   animation = true,
@@ -447,27 +414,6 @@ if vim.fn.has('termguicolors') == 1 then
   vim.o.termguicolors = true
 end
 
--- For dark version.
-vim.o.background = 'dark'
-
--- For light version.
--- vim.o.background = 'light' -- Uncomment this line if you prefer the light version.
-
--- Set contrast for Gruvbox Material.
--- This configuration option should be placed before loading the colorscheme.
-vim.g.gruvbox_material_background = 'soft'
-
--- For better performance
-vim.g.gruvbox_material_better_performance = 1
-
--- Load the colorscheme
-vim.cmd [[colorscheme gruvbox-material]]
-require('lualine').setup {
-  options = { theme  = 'gruvbox' },
-}
-
---end material gruvbox 
-
 -- set word wrap on for text files 
 vim.api.nvim_exec([[
   autocmd BufRead,BufNewFile *.txt set wrap
@@ -491,7 +437,10 @@ require('telescope').load_extension('projects')
 
 -- gitui 
 require("gitui").setup()
+
 --toggleterm 
 require("toggleterm").setup()
 
 vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+
+vim.cmd[[colorscheme tokyonight]]
