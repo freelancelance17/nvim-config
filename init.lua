@@ -420,13 +420,13 @@ vim.api.nvim_exec([[
 ]], false)
 
 -- open trouble on all python files
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "python",
-  callback = function()
-    vim.cmd("Trouble")
-    vim.cmd("Outline")
-  end,
-})
+-- vim.api.nvim_create_autocmd("FileType", {
+--   pattern = "python",
+--   callback = function()
+--     vim.cmd("Trouble")
+--     vim.cmd("Outline")
+--   end,
+-- })
 
 -- outline 
 require("outline").setup({})
@@ -463,4 +463,37 @@ vim.api.nvim_set_keymap('n', '<C-k>', '<C-w>k', { noremap = true, silent = true 
 vim.api.nvim_set_keymap('n', '<C-l>', '<C-w>l', { noremap = true, silent = true })
 
 vim.api.nvim_set_keymap('v', '<leader>l', ':\'<\'>Chat explain<CR>', { noremap = true, silent = true })
+
+-- set autocmds for md files, wordwrap
+vim.api.nvim_create_augroup('MarkdownSettings', { clear = true })
+
+-- Define the autocmds for the MarkdownSettings group
+vim.api.nvim_create_autocmd('FileType', {
+    group = 'MarkdownSettings',
+    pattern = 'markdown',
+    callback = function()
+        -- Set various options here
+        vim.opt_local.wrap = true
+        vim.opt_local.textwidth = 80
+        vim.opt_local.wrapmargin = 20
+        -- Add more settings as needed
+    end,
+})
+
+local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+parser_config.zimbu = {
+  install_info = {
+    url = "~/dev/random/tree-sitter-latex", -- local path or git repo
+    files = {"src/parser.c"}, -- note that some parsers also require src/scanner.c or src/scanner.cc
+    -- optional entries:
+    branch = "main", -- default branch in case of git repo if different from master
+    generate_requires_npm = false, -- if stand-alone parser without npm dependencies
+    requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
+  },
+  filetype = "zu", -- if filetype does not match the parser name
+}
+
+vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>r', 'q', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '<leader>r', 'q', { noremap = true, silent = true })
 
