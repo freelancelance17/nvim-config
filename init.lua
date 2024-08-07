@@ -399,14 +399,14 @@ vim.api.nvim_create_autocmd("BufWritePost", {
   end,
 })
 
-vim.api.nvim_create_autocmd("BufWritePost", {
-  pattern = {"*.js", "*.jsx", "*.tsx"},
-  callback = function()
-    local file = vim.fn.expand('%:p') -- Get the full path of the current file
-    local escaped_file = vim.fn.shellescape(file) -- Escape the filename for shell usage
-    vim.cmd('!' .. 'prettier --write ' .. escaped_file)
-  end,
-})
+-- vim.api.nvim_create_autocmd("BufWritePost", {
+--   pattern = {"*.js", "*.jsx", "*.tsx"},
+--   callback = function()
+--     local file = vim.fn.expand('%:p') -- Get the full path of the current file
+--     local escaped_file = vim.fn.shellescape(file) -- Escape the filename for shell usage
+--     --vim.cmd('!' .. 'prettier --write ' .. escaped_file)
+--   end,
+-- })
 
 -- start material gruvbox 
 -- Important!!
@@ -420,6 +420,7 @@ vim.api.nvim_exec([[
 ]], false)
 
 -- open trouble on all python files
+-- -- open trouble on all python files
 -- vim.api.nvim_create_autocmd("FileType", {
 --   pattern = "python",
 --   callback = function()
@@ -497,6 +498,77 @@ vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', 'w', ':w<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>r', 'q', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<leader>r', 'q', { noremap = true, silent = true })
+=======
+local dap = require('dap')
+dap.adapters.python = {
+  type = 'executable';
+  command = os.getenv('HOME')..'/.pyenv/shims/python'; -- Adjust as necessary
+  args = { '-m', 'debugpy.adapter' };
+}
+
+dap.configurations.python = {
+  {
+    type = 'python';
+    request = 'launch';
+    name = "Launch file";
+    program = "${file}"; -- This configuration will launch the current file if used.
+    pythonPath = function()
+      return '/Users/lanceknickerbocker/.pyenv/shims/python' -- Adjust to the path of your Python interpreter
+    end;
+  },
+}
+
+vim.api.nvim_set_keymap('n', '<leader>fu', '<cmd>lua require("telescope.builtin").lsp_references()<CR>', { noremap = true, silent = true })
+
+require('lualine').setup {
+  options = {
+    icons_enabled = true,
+    theme = 'auto',
+    component_separators = { left = '', right = ''},
+    section_separators = { left = '', right = ''},
+    disabled_filetypes = {
+      statusline = {},
+      winbar = {},
+    },
+    ignore_focus = {},
+    always_divide_middle = true,
+    globalstatus = false,
+    refresh = {
+      statusline = 1000,
+      tabline = 1000,
+      winbar = 1000,
+    }
+  },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 'diff', 'diagnostics'},
+    lualine_c = {{'filename', path=1}},
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = {'filename'},
+    lualine_x = {'location'},
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  winbar = {},
+  inactive_winbar = {},
+  extensions = {}
+}
+
+-- Alias for an existing command
+vim.api.nvim_create_user_command(
+    'SurroundHelp',
+    function()
+        vim.cmd("%s/\\(.*\\)/'\\1',/")
+    end,
+    { nargs = 0 } -- nargs = 0 indicates this command does not take any arguments
+)
 
 function search_current_word()
   local word = vim.fn.expand('<cword>')  -- Get the word under the cursor
