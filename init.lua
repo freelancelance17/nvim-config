@@ -180,7 +180,7 @@ local default_config = {
 }
 
 -- setup language servers here
-lspconfig.tsserver.setup(default_config)
+lspconfig.ts_ls.setup(default_config)
 
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
   vim.lsp.diagnostic.on_publish_diagnostics, {
@@ -494,6 +494,34 @@ parser_config.zimbu = {
 }
 
 vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'w', ':w<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>r', 'q', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<leader>r', 'q', { noremap = true, silent = true })
 
+function search_current_word()
+  local word = vim.fn.expand('<cword>')  -- Get the word under the cursor
+  require('telescope.builtin').grep_string({
+    search = word,
+    use_regex = false,  -- Set to true if you want to use regex
+  })
+end
+
+-- Map the custom function to a key binding, e.g., <leader>fw
+vim.api.nvim_set_keymap(
+  'n', '<leader>fw', ':lua search_current_word()<CR>',
+  { noremap = true, silent = true }
+)
+-- Get all available colorschemes
+local colorschemes = vim.fn.getcompletion('', 'color')
+
+-- Seed the random generator for randomness
+math.randomseed(os.time())
+
+-- Choose a random colorscheme from the list
+local random_colorscheme = colorschemes[math.random(#colorschemes)]
+
+-- Apply the chosen colorscheme
+vim.cmd("colorscheme " .. random_colorscheme)
+
+-- Print the selected colorscheme to the command line
+print("Randomly selected colorscheme: " .. random_colorscheme)

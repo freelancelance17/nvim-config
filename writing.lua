@@ -18,7 +18,7 @@ vim.api.nvim_create_autocmd('VimEnter', {
     pattern = '*',               -- Apply to all files
     callback = function()
         -- Set the colorscheme to 'tokyonight'
-        vim.cmd('colorscheme industry')
+        vim.cmd('colorscheme retrobox')
     end
 })-- init.lua
 
@@ -105,4 +105,19 @@ key_mapper('n', '<C-PageUp>', '<Cmd>BufferPrevious<CR>')
 key_mapper('n', '<C-PageDown>', '<Cmd>BufferNext<CR>')
 key_mapper('n', '<A-c>', '<Cmd>BufferClose<CR>')
 
+-- Function to run your commands
+local function run_commands_on_save()
+  vim.cmd('echo "Saving Markdown file..."')
+  vim.cmd('terminal ./check.sh ' .. vim.fn.expand('%'))
+  -- Add more commands as needed
+end
 
+-- Create the autocommand group
+vim.api.nvim_create_augroup('MarkdownSaveGroup', { clear = true })
+
+-- Create the autocommand
+vim.api.nvim_create_autocmd('BufWritePost', {
+  pattern = '*.md',
+  callback = run_commands_on_save,
+  group = 'MarkdownSaveGroup'
+})
