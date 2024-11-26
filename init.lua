@@ -153,6 +153,12 @@ packer.startup(function()
       require("toggleterm").setup()
   end
   }
+  use({
+    "stevearc/aerial.nvim",
+    config = function()
+      require("aerial").setup()
+    end,
+  })
 --   use {
 --     "nvim-neotest/neotest",
 --     requires = {
@@ -652,7 +658,6 @@ local random_colorscheme = colorschemes[math.random(#colorschemes)]
 vim.cmd("colorscheme " .. random_colorscheme)
 
 -- Print the selected colorscheme to the command line
-print("Randomly selected colorscheme: " .. random_colorscheme) 
 
 vim.api.nvim_set_keymap(
   'n',
@@ -660,3 +665,17 @@ vim.api.nvim_set_keymap(
   '<cmd>lua require("telescope.builtin").grep_string({ search = vim.fn.expand("<cword>") })<CR>',
   { noremap = true, silent = true }
 )
+
+require("aerial").setup({
+  open_automatic = true,
+  -- optionally use on_attach to set keymaps when aerial has attached to a buffer
+  --
+  on_attach = function(bufnr)
+    -- Jump forwards/backwards with '{' and '}'
+    vim.keymap.set("n", "{", "<cmd>AerialPrev<CR>", { buffer = bufnr })
+    vim.keymap.set("n", "}", "<cmd>AerialNext<CR>", { buffer = bufnr })
+
+  end,
+})
+-- You probably also want to set a keymap to toggle aerial
+vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!left<CR>")
