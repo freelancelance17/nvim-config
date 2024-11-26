@@ -68,6 +68,7 @@ packer.init({package_root = util.join_paths(fn.stdpath('data'), 'site', 'pack')}
 --- startup and add configure plugins
 packer.startup(function()
   local use = use
+  use 'rose-pine/neovim'
   -- lsp server
   use 'neovim/nvim-lspconfig' -- https://github.com/neovim/nvim-lspconfig
   -- use 'nvim-lua/completion-nvim' -- https://github.com/nvim-lua/completion-nvim
@@ -152,6 +153,16 @@ packer.startup(function()
       require("toggleterm").setup()
   end
   }
+--   use {
+--     "nvim-neotest/neotest",
+--     requires = {
+--       "nvim-neotest/nvim-nio",
+--       "nvim-lua/plenary.nvim",
+--       "antoinemadec/FixCursorHold.nvim",
+--       "nvim-treesitter/nvim-treesitter",
+--       "nvim-neotest/neotest-python"
+--     }
+-- } 
   end
 )
 
@@ -180,7 +191,7 @@ local default_config = {
 }
 
 -- setup language servers here
-lspconfig.ts_ls.setup(default_config)
+require'lspconfig'.ts_ls.setup{}
 
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
   vim.lsp.diagnostic.on_publish_diagnostics, {
@@ -434,7 +445,24 @@ require("outline").setup({})
 
 -- projects integration with telescope
 require("project_nvim").setup({})
-require('telescope').load_extension('projects')
+
+require('telescope').setup{
+  defaults = {
+    vimgrep_arguments = {
+      'rg',
+      '--color=never',
+      '--no-heading',
+      '--with-filename',
+      '--line-number',
+      '--column',
+      '--smart-case',
+      '-L'
+    },
+    prompt_prefix = "> ",
+    selection_caret = "> ",
+    path_display = { "truncate" },
+  },
+}
 
 -- gitui 
 require("gitui").setup()
@@ -498,7 +526,7 @@ vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', 'w', ':w<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>r', 'q', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<leader>r', 'q', { noremap = true, silent = true })
-=======
+
 local dap = require('dap')
 dap.adapters.python = {
   type = 'executable';
@@ -601,3 +629,34 @@ vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>r', 'q', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<leader>r', 'q', { noremap = true, silent = true })
 
+-- require("neotest").setup({
+--   adapters = {
+--     require("neotest-python")({
+--       dap = { justMyCode = false },
+--       runner = "pytest",
+--       python = "/Users/lanceknickerbocker/.pyenv/shims/python",
+--     }),
+--   },
+-- })
+--
+-- Get all available colorschemes
+local colorschemes = vim.fn.getcompletion('', 'color')
+
+-- Seed the random generator for randomness
+math.randomseed(os.time())
+
+-- Choose a random colorscheme from the list
+local random_colorscheme = colorschemes[math.random(#colorschemes)]
+
+-- Apply the chosen colorscheme
+vim.cmd("colorscheme " .. random_colorscheme)
+
+-- Print the selected colorscheme to the command line
+print("Randomly selected colorscheme: " .. random_colorscheme) 
+
+vim.api.nvim_set_keymap(
+  'n',
+  '<leader>fw',
+  '<cmd>lua require("telescope.builtin").grep_string({ search = vim.fn.expand("<cword>") })<CR>',
+  { noremap = true, silent = true }
+)
