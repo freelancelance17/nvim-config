@@ -597,3 +597,7 @@ vim.cmd("colorscheme " .. random_colorscheme)
 
 -- Print the selected colorscheme to the command line
 print("Randomly selected colorscheme: " .. random_colorscheme)
+vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>r', 'q', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '<leader>r', 'q', { noremap = true, silent = true })
+
