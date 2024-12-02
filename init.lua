@@ -189,13 +189,19 @@ configs.setup {
   }
 }
 
--- LSP SERVER CONFIG 
+-- LSP SERVER CONFIG
 local lspconfig = require'lspconfig'
-require'lspconfig'.pyright.setup{} -- https://github.com/neovim/nvim-lspconfig
+
+require'lspconfig'.pyright.setup{
+  on_attach = function(client, bufnr)
+    vim.api.nvim_buf_set_option(bufnr, 'wrap', true)
+    vim.api.nvim_buf_set_option(bufnr, 'linebreak', true)
+  end,
+}
+
 local default_config = {
   on_attach = custom_on_attach,
 }
-
 -- setup language servers here
 require'lspconfig'.ts_ls.setup{}
 
@@ -325,7 +331,7 @@ sources = cmp.config.sources({
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
 require('lspconfig')['pyright'].setup {
-capabilities = capabilities
+	capabilities = capabilities
 }
 
 -- setup for rust-tools 
@@ -343,38 +349,55 @@ rt.setup({
 })
 
 -- LSP Diagnostics Options Setup 
-local sign = function(opts)
-  vim.fn.sign_define(opts.name, {
-    texthl = opts.name,
-    text = opts.text,
-    numhl = ''
-  })
-end
-
-sign({name = 'DiagnosticSignError', text = ''})
-sign({name = 'DiagnosticSignWarn', text = ''})
-sign({name = 'DiagnosticSignHint', text = ''})
-sign({name = 'DiagnosticSignInfo', text = ''})
-
+--
 vim.diagnostic.config({
-    virtual_text = false,
-    signs = true,
-    update_in_insert = true,
-    underline = true,
-    severity_sort = false,
-    float = {
-        border = 'rounded',
-        source = 'always',
-        header = '',
-        prefix = '',
-    },
+  virtual_text = true,
+  signs = true,
+  underline = true,
+  update_in_insert = false,
+  severity_sort = false,
 })
-
-vim.cmd([[
-set signcolumn=yes
-autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
-]])
-
+-- You will likely want to reduce updatetime which affects CursorHold
+-- note: this setting is global and should be set only once
+vim.o.updatetime = 250
+vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+  group = vim.api.nvim_create_augroup("float_diagnostic", { clear = true }),
+  callback = function ()
+    vim.diagnostic.open_float(nil, {focus=false})
+  end
+})
+-- local sign = function(opts)
+--   vim.fn.sign_define(opts.name, {
+--     texthl = opts.name,
+--     text = opts.text,
+--     numhl = ''
+--   })
+-- end
+--
+-- sign({name = 'DiagnosticSignError', text = ''})
+-- sign({name = 'DiagnosticSignWarn', text = ''})
+-- sign({name = 'DiagnosticSignHint', text = ''})
+-- sign({name = 'DiagnosticSignInfo', text = ''})
+--
+-- vim.diagnostic.config({
+--     virtual_text = false,
+--     signs = true,
+--     update_in_insert = true,
+--     underline = true,
+--     severity_sort = false,
+--     float = {
+--         border = 'rounded',
+--         source = 'always',
+--         header = '',
+--         prefix = '',
+--     },
+-- })
+--
+-- vim.cmd([[
+-- set signcolumn=yes
+-- autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
+-- ]])
+--
 -- Mason Setup
 require("mason").setup({
     ui = {
