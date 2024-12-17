@@ -159,6 +159,9 @@ packer.startup(function()
       require("aerial").setup()
     end,
   })
+  use "tpope/vim-fugitive"
+  
+
 --   use {
 --     "nvim-neotest/neotest",
 --     requires = {
@@ -280,6 +283,10 @@ cmp.setup({
     { name = 'buffer', keyword_length = 2 },        -- source current buffer
     { name = 'vsnip', keyword_length = 2 },         -- nvim-cmp source for vim-vsnip 
     { name = 'calc'},                               -- source for math calculation
+    { name = 'pyright' },                           -- Python LSP source
+    { name = 'ruff' },                              -- Python linter source
+    { name = 'jedi' },                              -- Python autocompletion source
+
   },
   window = {
       completion = cmp.config.window.bordered(),
@@ -359,7 +366,7 @@ vim.diagnostic.config({
 })
 -- You will likely want to reduce updatetime which affects CursorHold
 -- note: this setting is global and should be set only once
-vim.o.updatetime = 250
+vim.o.updatetime = 2000
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
   group = vim.api.nvim_create_augroup("float_diagnostic", { clear = true }),
   callback = function ()
