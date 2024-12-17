@@ -49,8 +49,8 @@ local function save_profiles(threshold)
 end
 
 time([[Luarocks path setup]], true)
-local package_path_str = "/Users/lance/.cache/nvim/packer_hererocks/2.1.1716656478/share/lua/5.1/?.lua;/Users/lance/.cache/nvim/packer_hererocks/2.1.1716656478/share/lua/5.1/?/init.lua;/Users/lance/.cache/nvim/packer_hererocks/2.1.1716656478/lib/luarocks/rocks-5.1/?.lua;/Users/lance/.cache/nvim/packer_hererocks/2.1.1716656478/lib/luarocks/rocks-5.1/?/init.lua"
-local install_cpath_pattern = "/Users/lance/.cache/nvim/packer_hererocks/2.1.1716656478/lib/lua/5.1/?.so"
+local package_path_str = "/Users/lance/.cache/nvim/packer_hererocks/2.1.1732813678/share/lua/5.1/?.lua;/Users/lance/.cache/nvim/packer_hererocks/2.1.1732813678/share/lua/5.1/?/init.lua;/Users/lance/.cache/nvim/packer_hererocks/2.1.1732813678/lib/luarocks/rocks-5.1/?.lua;/Users/lance/.cache/nvim/packer_hererocks/2.1.1732813678/lib/luarocks/rocks-5.1/?/init.lua"
+local install_cpath_pattern = "/Users/lance/.cache/nvim/packer_hererocks/2.1.1732813678/lib/lua/5.1/?.so"
 if not string.find(package.path, package_path_str, 1, true) then
   package.path = package.path .. ';' .. package_path_str
 end
@@ -74,16 +74,16 @@ end
 time([[try_loadstring definition]], false)
 time([[Defining packer_plugins]], true)
 _G.packer_plugins = {
-  ["CodeGPT.nvim"] = {
-    config = { "\27LJ\2\n.\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\19codegpt.config\frequire\0" },
-    loaded = true,
-    path = "/Users/lance/.local/share/nvim/site/pack/packer/start/CodeGPT.nvim",
-    url = "https://github.com/freelancelance17/CodeGPT.nvim"
-  },
   ["Comment.nvim"] = {
     loaded = true,
     path = "/Users/lance/.local/share/nvim/site/pack/packer/start/Comment.nvim",
     url = "https://github.com/numToStr/Comment.nvim"
+  },
+  ["aerial.nvim"] = {
+    config = { "\27LJ\2\n4\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\vaerial\frequire\0" },
+    loaded = true,
+    path = "/Users/lance/.local/share/nvim/site/pack/packer/start/aerial.nvim",
+    url = "https://github.com/stevearc/aerial.nvim"
   },
   ["barbar.nvim"] = {
     loaded = true,
@@ -125,6 +125,11 @@ _G.packer_plugins = {
     path = "/Users/lance/.local/share/nvim/site/pack/packer/start/cmp-vsnip",
     url = "https://github.com/hrsh7th/cmp-vsnip"
   },
+  ["fzf-lua"] = {
+    loaded = true,
+    path = "/Users/lance/.local/share/nvim/site/pack/packer/start/fzf-lua",
+    url = "https://github.com/ibhagwan/fzf-lua"
+  },
   ["gitui.nvim"] = {
     loaded = true,
     path = "/Users/lance/.local/share/nvim/site/pack/packer/start/gitui.nvim",
@@ -145,6 +150,11 @@ _G.packer_plugins = {
     path = "/Users/lance/.local/share/nvim/site/pack/packer/start/mason.nvim",
     url = "https://github.com/williamboman/mason.nvim"
   },
+  neovim = {
+    loaded = true,
+    path = "/Users/lance/.local/share/nvim/site/pack/packer/start/neovim",
+    url = "https://github.com/rose-pine/neovim"
+  },
   nerdtree = {
     loaded = true,
     path = "/Users/lance/.local/share/nvim/site/pack/packer/start/nerdtree",
@@ -154,11 +164,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/lance/.local/share/nvim/site/pack/packer/start/nerdtree-git-plugin",
     url = "https://github.com/Xuyuanp/nerdtree-git-plugin"
-  },
-  ["nui.nvim"] = {
-    loaded = true,
-    path = "/Users/lance/.local/share/nvim/site/pack/packer/start/nui.nvim",
-    url = "https://github.com/MunifTanjim/nui.nvim"
   },
   ["nvim-autopairs"] = {
     loaded = true,
@@ -200,6 +205,12 @@ _G.packer_plugins = {
     path = "/Users/lance/.local/share/nvim/site/pack/packer/start/outline.nvim",
     url = "https://github.com/hedyhli/outline.nvim"
   },
+  ["parrot.nvim"] = {
+    config = { "\27LJ\2\n³\1\0\0\b\0\f\0\0166\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\n\0005\3\b\0005\4\6\0006\5\3\0009\5\4\5'\a\5\0B\5\2\2=\5\a\4=\4\t\3=\3\v\2B\0\2\1K\0\1\0\14providers\1\0\1\14providers\0\vopenai\1\0\1\vopenai\0\fapi_key\1\0\1\fapi_key\0\19OPENAI_API_KEY\vgetenv\aos\nsetup\vparrot\frequire\0" },
+    loaded = true,
+    path = "/Users/lance/.local/share/nvim/site/pack/packer/start/parrot.nvim",
+    url = "https://github.com/frankroeder/parrot.nvim"
+  },
   ["plenary.nvim"] = {
     loaded = true,
     path = "/Users/lance/.local/share/nvim/site/pack/packer/start/plenary.nvim",
@@ -209,12 +220,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/lance/.local/share/nvim/site/pack/packer/start/popup.nvim",
     url = "https://github.com/nvim-lua/popup.nvim"
-  },
-  ["project.nvim"] = {
-    config = { "\27LJ\2\nN\0\0\3\0\4\0\a6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\3\0B\0\2\1K\0\1\0\1\0\1\16manual_mode\2\nsetup\17project_nvim\frequire\0" },
-    loaded = true,
-    path = "/Users/lance/.local/share/nvim/site/pack/packer/start/project.nvim",
-    url = "https://github.com/ahmedkhalf/project.nvim"
   },
   ["rust-tools.nvim"] = {
     loaded = true,
@@ -291,18 +296,18 @@ _G.packer_plugins = {
 }
 
 time([[Defining packer_plugins]], false)
--- Config for: CodeGPT.nvim
-time([[Config for CodeGPT.nvim]], true)
-try_loadstring("\27LJ\2\n.\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\19codegpt.config\frequire\0", "config", "CodeGPT.nvim")
-time([[Config for CodeGPT.nvim]], false)
+-- Config for: parrot.nvim
+time([[Config for parrot.nvim]], true)
+try_loadstring("\27LJ\2\n³\1\0\0\b\0\f\0\0166\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\n\0005\3\b\0005\4\6\0006\5\3\0009\5\4\5'\a\5\0B\5\2\2=\5\a\4=\4\t\3=\3\v\2B\0\2\1K\0\1\0\14providers\1\0\1\14providers\0\vopenai\1\0\1\vopenai\0\fapi_key\1\0\1\fapi_key\0\19OPENAI_API_KEY\vgetenv\aos\nsetup\vparrot\frequire\0", "config", "parrot.nvim")
+time([[Config for parrot.nvim]], false)
 -- Config for: todo-comments.nvim
 time([[Config for todo-comments.nvim]], true)
 try_loadstring("\27LJ\2\n?\0\0\3\0\3\0\a6\0\0\0'\2\1\0B\0\2\0029\0\2\0004\2\0\0B\0\2\1K\0\1\0\nsetup\18todo-comments\frequire\0", "config", "todo-comments.nvim")
 time([[Config for todo-comments.nvim]], false)
--- Config for: project.nvim
-time([[Config for project.nvim]], true)
-try_loadstring("\27LJ\2\nN\0\0\3\0\4\0\a6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\3\0B\0\2\1K\0\1\0\1\0\1\16manual_mode\2\nsetup\17project_nvim\frequire\0", "config", "project.nvim")
-time([[Config for project.nvim]], false)
+-- Config for: aerial.nvim
+time([[Config for aerial.nvim]], true)
+try_loadstring("\27LJ\2\n4\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\vaerial\frequire\0", "config", "aerial.nvim")
+time([[Config for aerial.nvim]], false)
 -- Config for: toggleterm.nvim
 time([[Config for toggleterm.nvim]], true)
 try_loadstring("\27LJ\2\n8\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\15toggleterm\frequire\0", "config", "toggleterm.nvim")
