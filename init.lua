@@ -42,30 +42,27 @@ local key_mapper = function(mode, key, result)
   )
 end
 
--- PLUGIN SETTINGS --
 
--- PACKER --
-local vim = vim
-local execute = vim.api.nvim_command
-
-local fn = vim.fn
-
--- ensure that packer is installed
-local fn = vim.fn
-local cmd = vim.cmd
-local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
-
-if fn.empty(fn.glob(install_path)) > 0 then
-    cmd('!git clone https://github.com/wbthomason/packer.nvim '..install_path)
+local ensure_packer = function()
+  local fn = vim.fn
+  local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
+  if fn.empty(fn.glob(install_path)) > 0 then
+    fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
+    vim.cmd [[packadd packer.nvim]]
+    return true
+  end
+  return false
 end
 
-cmd('packadd packer.nvim')
+local packer_bootstrap = ensure_packer()
 
 local packer = require('packer')
 local util = require('packer.util')
 
-packer.init({package_root = util.join_paths(fn.stdpath('data'), 'site', 'pack')})
---- startup and add configure plugins
+packer.init({
+  package_root = util.join_paths(vim.fn.stdpath('data'), 'site', 'pack')
+})
+
 packer.startup(function()
   local use = use
   use 'rose-pine/neovim'
@@ -83,7 +80,6 @@ packer.startup(function()
   use 'nvim-lua/plenary.nvim'-- https://github.com/nvim-lua/plenary.nvim
   use 'nvim-lua/telescope.nvim'-- https://github.com/nvim-lua/telescope.nvim
   use 'jremmen/vim-ripgrep'-- https://github.com/jremmen/vim-ripgrep
-  -- theme
   -- file tree
   use 'preservim/nerdtree'-- https://github.com/preservim/nerdtree
   use 'nvim-tree/nvim-web-devicons'-- https://github.com/nvim-tree/nvim-web-devicons
@@ -142,9 +138,7 @@ packer.startup(function()
     'nvim-lualine/lualine.nvim',
     requires = { 'nvim-tree/nvim-web-devicons', opt = true }
   }
-  use 'hedyhli/outline.nvim'
   use 'folke/tokyonight.nvim'
-  use 'aspeddro/gitui.nvim'
   use {
     "akinsho/toggleterm.nvim", tag = '*', config = function()
       require("toggleterm").setup()
@@ -156,7 +150,6 @@ packer.startup(function()
       require("aerial").setup()
     end,
   })
-  use "tpope/vim-fugitive"
 
   end
 )
@@ -191,6 +184,7 @@ require'lspconfig'.pyright.setup{
 local default_config = {
   on_attach = custom_on_attach,
 }
+
 -- setup language servers here
 require'lspconfig'.ts_ls.setup{}
 
@@ -223,11 +217,6 @@ key_mapper('n', '<leader>fb', ':lua require"telescope.builtin".buffers()<CR>')
 key_mapper('n', '<leader>fr', '<cmd>Telescope projects<CR>')
 key_mapper('n', '<leader>fd', '<cmd>Telescope lsp_definitions<CR>')
 key_mapper('n', '<C-t>', '<cmd>ToggleTerm<CR>')
--- mappings for gitui
-key_mapper('n', '<leader>g', '<cmd>Gitui<CR>')
-
--- initiate oceanic next theme
---vim.cmd 'colorscheme OceanicNext'
 
 -- nvim tree
 vim.opt.termguicolors = true
@@ -410,7 +399,6 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 --   end,
 -- })
 
--- start material gruvbox 
 -- Important!!
 if vim.fn.has('termguicolors') == 1 then
   vim.o.termguicolors = true
@@ -421,18 +409,6 @@ vim.api.nvim_exec([[
   autocmd BufRead,BufNewFile *.txt set wrap
 ]], false)
 
--- open trouble on all python files
--- -- open trouble on all python files
--- vim.api.nvim_create_autocmd("FileType", {
---   pattern = "python",
---   callback = function()
---     vim.cmd("Trouble")
---     vim.cmd("Outline")
---   end,
--- })
-
--- outline 
-require("outline").setup({})
 
 require('telescope').setup{
   defaults = {
@@ -452,9 +428,6 @@ require('telescope').setup{
   },
 }
 
--- gitui 
-require("gitui").setup()
-
 --toggleterm 
 require("toggleterm").setup()
 
@@ -467,13 +440,6 @@ vim.cmd[[colorscheme tokyonight]]
 vim.api.nvim_set_keymap('n', '<leader>v', ':vsplit<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>s', ':split<CR>', { noremap = true, silent = true })
 
--- Resize windows
-vim.api.nvim_set_keymap('n', '<leader>+', ':resize +2<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>-', ':resize -2<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>>', ':vertical resize +2<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader><', ':vertical resize -2<CR>', { noremap = true, silent = true })
-
--- Navigate between windows
 vim.api.nvim_set_keymap('n', '<C-h>', '<C-w>h', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-j>', '<C-w>j', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-k>', '<C-w>k', { noremap = true, silent = true })
@@ -497,6 +463,7 @@ vim.api.nvim_create_autocmd('FileType', {
     end,
 })
 
+-- start material gruvbox 
 local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
 parser_config.zimbu = {
   install_info = {
@@ -617,16 +584,6 @@ vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>r', 'q', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<leader>r', 'q', { noremap = true, silent = true })
 
--- require("neotest").setup({
---   adapters = {
---     require("neotest-python")({
---       dap = { justMyCode = false },
---       runner = "pytest",
---       python = "/Users/lanceknickerbocker/.pyenv/shims/python",
---     }),
---   },
--- })
---
 -- Get all available colorschemes
 local colorschemes = vim.fn.getcompletion('', 'color')
 
@@ -650,13 +607,15 @@ vim.api.nvim_set_keymap(
 
 require("aerial").setup({
   open_automatic = true,
-  -- optionally use on_attach to set keymaps when aerial has attached to a buffer
-  --
-  on_attach = function(bufnr)
-    vim.keymap.set("n", "{", "<cmd>AerialPrev<CR>", { buffer = bufnr })
-    vim.keymap.set("n", "}", "<cmd>AerialNext<CR>", { buffer = bufnr })
-
-  end,
 })
--- You probably also want to set a keymap to toggle aerial
-vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!right<CR>")
+
+
+vim.api.nvim_create_autocmd({"BufReadPost", "BufNewFile"}, {
+  pattern = {"*.py", "*.tsx", "*.jsx"},
+  callback = function()
+    vim.cmd("AerialOpen")
+  end
+})
+
+key_mapper("n", "{", "<cmd>AerialPrev<CR>")
+key_mapper("n", "}", "<cmd>AerialNext<CR>")
