@@ -123,30 +123,27 @@ packer.startup(function()
   use 'tpope/vim-surround' -- https://github.com/tpope/vim-surround
   use 'RRethy/vim-illuminate'
   use 'numToStr/Comment.nvim' -- https://github.com/numToStr/Comment.nvim
+
   use({
-   "freelancelance17/CodeGPT.nvim",
-   requires = {
-      "MunifTanjim/nui.nvim",
-      "nvim-lua/plenary.nvim",
-   },
-   config = function()
-      require("codegpt.config")
-   end
+    "frankroeder/parrot.nvim",
+    requires = { 'ibhagwan/fzf-lua', 'nvim-lua/plenary.nvim'},
+    config = function()
+      require("parrot").setup({
+        providers = {
+          anthropic = {
+            api_key = os.getenv("ANTHROPIC_API_KEY"),
+          },
+        },
+      })
+    end,
   })
+
   use {
     'nvim-lualine/lualine.nvim',
     requires = { 'nvim-tree/nvim-web-devicons', opt = true }
   }
   use 'hedyhli/outline.nvim'
   use 'folke/tokyonight.nvim'
-  use {
-    "ahmedkhalf/project.nvim",
-    config = function()
-      require("project_nvim").setup {
-        manual_mode = true
-      }
-    end
-  }
   use 'aspeddro/gitui.nvim'
   use {
     "akinsho/toggleterm.nvim", tag = '*', config = function()
@@ -160,18 +157,7 @@ packer.startup(function()
     end,
   })
   use "tpope/vim-fugitive"
-  
 
---   use {
---     "nvim-neotest/neotest",
---     requires = {
---       "nvim-neotest/nvim-nio",
---       "nvim-lua/plenary.nvim",
---       "antoinemadec/FixCursorHold.nvim",
---       "nvim-treesitter/nvim-treesitter",
---       "nvim-neotest/neotest-python"
---     }
--- } 
   end
 )
 
@@ -366,45 +352,14 @@ vim.diagnostic.config({
 })
 -- You will likely want to reduce updatetime which affects CursorHold
 -- note: this setting is global and should be set only once
-vim.o.updatetime = 2000
+vim.o.updatetime = 2000 
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
   group = vim.api.nvim_create_augroup("float_diagnostic", { clear = true }),
   callback = function ()
     vim.diagnostic.open_float(nil, {focus=false})
   end
 })
--- local sign = function(opts)
---   vim.fn.sign_define(opts.name, {
---     texthl = opts.name,
---     text = opts.text,
---     numhl = ''
---   })
--- end
---
--- sign({name = 'DiagnosticSignError', text = ''})
--- sign({name = 'DiagnosticSignWarn', text = ''})
--- sign({name = 'DiagnosticSignHint', text = ''})
--- sign({name = 'DiagnosticSignInfo', text = ''})
---
--- vim.diagnostic.config({
---     virtual_text = false,
---     signs = true,
---     update_in_insert = true,
---     underline = true,
---     severity_sort = false,
---     float = {
---         border = 'rounded',
---         source = 'always',
---         header = '',
---         prefix = '',
---     },
--- })
---
--- vim.cmd([[
--- set signcolumn=yes
--- autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
--- ]])
---
+
 -- Mason Setup
 require("mason").setup({
     ui = {
@@ -478,9 +433,6 @@ vim.api.nvim_exec([[
 
 -- outline 
 require("outline").setup({})
-
--- projects integration with telescope
-require("project_nvim").setup({})
 
 require('telescope').setup{
   defaults = {
@@ -701,11 +653,10 @@ require("aerial").setup({
   -- optionally use on_attach to set keymaps when aerial has attached to a buffer
   --
   on_attach = function(bufnr)
-    -- Jump forwards/backwards with '{' and '}'
     vim.keymap.set("n", "{", "<cmd>AerialPrev<CR>", { buffer = bufnr })
     vim.keymap.set("n", "}", "<cmd>AerialNext<CR>", { buffer = bufnr })
 
   end,
 })
 -- You probably also want to set a keymap to toggle aerial
-vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!left<CR>")
+vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!right<CR>")
