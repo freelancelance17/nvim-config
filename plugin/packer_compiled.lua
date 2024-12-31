@@ -286,10 +286,6 @@ _G.packer_plugins = {
 }
 
 time([[Defining packer_plugins]], false)
--- Config for: parrot.nvim
-time([[Config for parrot.nvim]], true)
-try_loadstring("\27LJ\2\n¼\1\0\0\b\0\f\0\0166\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\n\0005\3\b\0005\4\6\0006\5\3\0009\5\4\5'\a\5\0B\5\2\2=\5\a\4=\4\t\3=\3\v\2B\0\2\1K\0\1\0\14providers\1\0\1\14providers\0\14anthropic\1\0\1\14anthropic\0\fapi_key\1\0\1\fapi_key\0\22ANTHROPIC_API_KEY\vgetenv\aos\nsetup\vparrot\frequire\0", "config", "parrot.nvim")
-time([[Config for parrot.nvim]], false)
 -- Config for: aerial.nvim
 time([[Config for aerial.nvim]], true)
 try_loadstring("\27LJ\2\n4\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\vaerial\frequire\0", "config", "aerial.nvim")
@@ -302,6 +298,10 @@ time([[Config for toggleterm.nvim]], false)
 time([[Config for todo-comments.nvim]], true)
 try_loadstring("\27LJ\2\n?\0\0\3\0\3\0\a6\0\0\0'\2\1\0B\0\2\0029\0\2\0004\2\0\0B\0\2\1K\0\1\0\nsetup\18todo-comments\frequire\0", "config", "todo-comments.nvim")
 time([[Config for todo-comments.nvim]], false)
+-- Config for: parrot.nvim
+time([[Config for parrot.nvim]], true)
+try_loadstring("\27LJ\2\n¼\1\0\0\b\0\f\0\0166\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\n\0005\3\b\0005\4\6\0006\5\3\0009\5\4\5'\a\5\0B\5\2\2=\5\a\4=\4\t\3=\3\v\2B\0\2\1K\0\1\0\14providers\1\0\1\14providers\0\14anthropic\1\0\1\14anthropic\0\fapi_key\1\0\1\fapi_key\0\22ANTHROPIC_API_KEY\vgetenv\aos\nsetup\vparrot\frequire\0", "config", "parrot.nvim")
+time([[Config for parrot.nvim]], false)
 
 _G._packer.inside_compile = false
 if _G._packer.needs_bufread == true then
