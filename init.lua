@@ -496,7 +496,7 @@ dap.configurations.python = {
     name = "Launch file";
     program = "${file}"; -- This configuration will launch the current file if used.
     pythonPath = function()
-      return '/Users/lanceknickerbocker/.pyenv/shims/python' -- Adjust to the path of your Python interpreter
+      return '~/.pyenv/shims/python' -- Adjust to the path of your Python interpreter
     end;
   },
 }
@@ -613,9 +613,10 @@ require("aerial").setup({
 vim.api.nvim_create_autocmd({"BufReadPost", "BufNewFile"}, {
   pattern = {"*.py", "*.tsx", "*.jsx"},
   callback = function()
-    vim.cmd("AerialOpen")
+    vim.cmd("AerialOpen!")
   end
 })
 
 key_mapper("n", "}", "<cmd>AerialPrev<CR>")
 key_mapper("n", "{", "<cmd>AerialNext<CR>")
+key_mapper("n", "<leader>\\", "<cmd>colorscheme rose-pine-moon<CR>")
