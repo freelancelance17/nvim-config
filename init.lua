@@ -206,6 +206,7 @@ local default_config = {
 
 -- setup language servers here
 require'lspconfig'.ts_ls.setup{}
+require'lspconfig'.svelte.setup{}
 
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
   vim.lsp.diagnostic.on_publish_diagnostics, {
@@ -629,12 +630,12 @@ require("aerial").setup({
 
 
 vim.api.nvim_create_autocmd({"BufReadPost", "BufNewFile"}, {
-  pattern = {"*.py", "*.tsx", "*.jsx"},
+  pattern = {"*.py", "*.tsx", "*.jsx", "*.svelte"},
   callback = function()
     vim.cmd("AerialOpen!")
   end
 })
 
-key_mapper("n", "}", "<cmd>AerialPrev<CR>")
-key_mapper("n", "{", "<cmd>AerialNext<CR>")
+key_mapper("n", "{", "<cmd>AerialPrev<CR>")
+key_mapper("n", "}", "<cmd>AerialNext<CR>")
 key_mapper("n", "<leader>\\", "<cmd>colorscheme rose-pine-moon<CR>")
