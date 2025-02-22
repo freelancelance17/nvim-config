@@ -636,6 +636,6 @@ vim.api.nvim_create_autocmd({"BufReadPost", "BufNewFile"}, {
   end
 })
 
-key_mapper("n", "{", "<cmd>AerialPrev<CR>")
-key_mapper("n", "}", "<cmd>AerialNext<CR>")
+key_mapper("n", "}", "<cmd>AerialPrev<CR>")
+key_mapper("n", "{", "<cmd>AerialNext<CR>")
 key_mapper("n", "<leader>\\", "<cmd>colorscheme rose-pine-moon<CR>")
