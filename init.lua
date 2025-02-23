@@ -45,109 +45,169 @@ local key_mapper = function(mode, key, result)
 end
 
 
-local ensure_packer = function()
-  local fn = vim.fn
-  local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
-  if fn.empty(fn.glob(install_path)) > 0 then
-    fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
-    vim.cmd [[packadd packer.nvim]]
-    return true
-  end
-  return false
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable",
+    lazypath,
+  })
 end
+vim.opt.rtp:prepend(lazypath)
 
-local packer_bootstrap = ensure_packer()
+-- Configure lazy.nvim
+require("lazy").setup({
+  -- Required plugins
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    opts = {
+      ensure_installed = { "python", "lua", "rust", "toml", "html", "javascript", "markdown", "markdown_inline" }, -- specify the parsers
+    },
+  },
+    {
+  "yetone/avante.nvim",
+  event = "VeryLazy",
+  lazy = false,
+  version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
+  opts = {
+    -- add any opts here
+    -- for example
+    provider = "openai",
+    openai = {
+      endpoint = "https://api.openai.com/v1",
+      model = "gpt-4o", -- your desired model (or use gpt-4o, etc.)
+      timeout = 30000, -- timeout in milliseconds
+      temperature = 0, -- adjust if needed
+      max_tokens = 4096,
+      -- reasoning_effort = "high" -- only supported for reasoning models (o1, etc.)
+    },
+  },
+  -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
+  build = "make",
+  -- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
+  dependencies = {
+    "nvim-treesitter/nvim-treesitter",
+    "stevearc/dressing.nvim",
+    "nvim-lua/plenary.nvim",
+    "MunifTanjim/nui.nvim",
+    --- The below dependencies are optional,
+    "echasnovski/mini.pick", -- for file_selector provider mini.pick
+    "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
+    "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
+    "ibhagwan/fzf-lua", -- for file_selector provider fzf
+    "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
+    "zbirenbaum/copilot.lua", -- for providers='copilot'
+    {
+      -- support for image pasting
+      "HakonHarnes/img-clip.nvim",
+      event = "VeryLazy",
+      opts = {
+        -- recommended settings
+        default = {
+          embed_image_as_base64 = false,
+          prompt_for_file_name = false,
+          drag_and_drop = {
+            insert_mode = true,
+          },
+          -- required for Windows users
+          use_absolute_path = true,
+        },
+      },
+    },
+    {
+      -- Make sure to set this up properly if you have lazy=true
+      'MeanderingProgrammer/render-markdown.nvim',
+      opts = {
+        file_types = { "markdown", "Avante" },
+      },
+      ft = { "markdown", "Avante" },
+    },
+  },
+},
 
-local packer = require('packer')
-local util = require('packer.util')
+  -- Theme
+  "rose-pine/neovim",
 
-packer.init({
-  package_root = util.join_paths(vim.fn.stdpath('data'), 'site', 'pack')
-})
+  -- LSP
+  "neovim/nvim-lspconfig",
+  "anott03/nvim-lspinstall",
+  {
+    "williamboman/mason.nvim",
+    dependencies = {
+      "williamboman/mason-lspconfig.nvim",
+    },
+  },
 
-packer.startup(function()
-  local use = use
-    -- Required plugins
-  use 'nvim-treesitter/nvim-treesitter'
-  use 'stevearc/dressing.nvim'
-  use 'nvim-lua/plenary.nvim'
-  use 'MunifTanjim/nui.nvim'
-  use 'MeanderingProgrammer/render-markdown.nvim'
+  -- Fuzzy finding
+  "nvim-lua/popup.nvim",
+  {
+    "nvim-telescope/telescope.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+  },
+  "jremmen/vim-ripgrep",
 
-  -- Optional dependencies
-  use 'hrsh7th/nvim-cmp'
-  use 'nvim-tree/nvim-web-devicons' -- or use 'echasnovski/mini.icons'
-  use 'HakonHarnes/img-clip.nvim'
-  use 'zbirenbaum/copilot.lua'
+  -- File tree
+  "preservim/nerdtree",
+  "ryanoasis/vim-devicons",
+  "Xuyuanp/nerdtree-git-plugin",
 
-  -- Avante.nvim with build process
-  use {
-    'yetone/avante.nvim',
-    branch = 'main',
-    run = 'make',
+  -- Terminal
+  "voldikss/vim-floaterm",
+
+  -- Completion
+  "hrsh7th/cmp-nvim-lsp",
+  "hrsh7th/cmp-buffer",
+  "hrsh7th/cmp-path",
+  "hrsh7th/cmp-cmdline",
+  "hrsh7th/cmp-vsnip",
+  "hrsh7th/vim-vsnip",
+  "hrsh7th/cmp-nvim-lua",
+  "hrsh7th/cmp-nvim-lsp-signature-help",
+
+  -- Other utilities
+  "folke/which-key.nvim",
+
+  -- Rust
+  "simrat39/rust-tools.nvim",
+  "puremourning/vimspector",
+
+  -- Tabs
+  {
+    "romgrk/barbar.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+  },
+
+  -- Project status
+  {
+    "folke/todo-comments.nvim",
+    dependencies = "nvim-lua/plenary.nvim",
     config = function()
-      require('avante_lib').load()
-      require('avante').setup()
-    end
-  }
-  use 'rose-pine/neovim'
-  -- lsp server
-  use 'neovim/nvim-lspconfig' -- https://github.com/neovim/nvim-lspconfig
-  -- use 'nvim-lua/completion-nvim' -- https://github.com/nvim-lua/completion-nvim
-  use 'anott03/nvim-lspinstall'-- https://github.com/anott03/nvim-lspinstall
-  -- more lsp
-  use 'williamboman/mason.nvim' -- https://github.com/williamboman/mason.nvim
-  use 'williamboman/mason-lspconfig.nvim' -- https://github.com/williamboman/mason-lspconfig.nvim
-  -- language processing (TSInstall {language})
-  use 'nvim-treesitter/nvim-treesitter'-- https://github.com/nvim-treesitter/nvim-treesitter
-  -- fuzzy finding 
-  use 'nvim-lua/popup.nvim'-- https://github.com/nvim-lua/popup.nvim
-  use 'nvim-lua/plenary.nvim'-- https://github.com/nvim-lua/plenary.nvim
-  use 'nvim-lua/telescope.nvim'-- https://github.com/nvim-lua/telescope.nvim
-  use 'jremmen/vim-ripgrep'-- https://github.com/jremmen/vim-ripgrep
-  -- file tree
-  use 'preservim/nerdtree'-- https://github.com/preservim/nerdtree
-  use 'nvim-tree/nvim-web-devicons'-- https://github.com/nvim-tree/nvim-web-devicons
-  use 'ryanoasis/vim-devicons'-- https://github.com/ryanoasis/vim-devicons
-  use 'Xuyuanp/nerdtree-git-plugin'-- https://github.com/Xuyuanp/nerdtree-git-plugin
-  -- nvterm
-  use 'voldikss/vim-floaterm'-- https://github.com/voldikss/vim-floaterm
-  -- auto complete
-  use 'hrsh7th/cmp-nvim-lsp'-- https://github.com/hrsh7th/cmp-nvim-lsp
-  use 'hrsh7th/cmp-buffer'-- https://github.com/hrsh7th/cmp-buffer
-  use 'hrsh7th/cmp-path'-- https://github.com/hrsh7th/cmp-path
-  use 'hrsh7th/cmp-cmdline'-- https://github.com/hrsh7th/cmp-cmdline
-  use 'hrsh7th/nvim-cmp'-- https://github.com/hrsh7th/nvim-cmp
-  use 'hrsh7th/cmp-vsnip'-- https://github.com/hrsh7th/cmp-vsnip
-  use 'hrsh7th/vim-vsnip'-- https://github.com/hrsh7th/vim-vsnip
-  use 'hrsh7th/cmp-nvim-lua'-- https://github.com/hrsh7th/cmp-nvim-lua
-  use 'hrsh7th/cmp-nvim-lsp-signature-help'-- https://github.com/hrsh7th/cmp-nvim-lsp-signature-help
-  -- other
-  use 'folke/which-key.nvim'-- https://github.com/folke/which-key.nvim
-  -- rust stuff
-  use 'simrat39/rust-tools.nvim'-- https://github.com/simrat39/rust-tools.nvim
-  use 'mfussenegger/nvim-dap'-- https://github.com/mfussenegger/nvim-dap
-  use 'puremourning/vimspector'-- https://github.com/puremourning/vimspector
-  -- tabs 
-  use 'romgrk/barbar.nvim'-- https://github.com/romgrk/barbar.nvim
-  -- project status stuff
-  use {
-    "folke/todo-comments.nvim",-- https://github.com/folke/todo-comments.nvim
-    requires = "nvim-lua/plenary.nvim",
+      require("todo-comments").setup {}
+    end,
+  },
+  "folke/trouble.nvim",
+  "windwp/nvim-autopairs",
+  "tpope/vim-surround",
+  "RRethy/vim-illuminate",
+  {
+    "numToStr/Comment.nvim",
     config = function()
-      require("todo-comments").setup {
-      }
-      end
-  }
-  use 'folke/trouble.nvim'
-  use 'windwp/nvim-autopairs'
-  use 'tpope/vim-surround' -- https://github.com/tpope/vim-surround
-  use 'RRethy/vim-illuminate'
-  use 'numToStr/Comment.nvim' -- https://github.com/numToStr/Comment.nvim
+      require("Comment").setup()
+    end,
+  },
 
-  use({
+  -- AI Assistant
+  {
     "freelancelance17/parrot.nvim",
-    requires = { 'ibhagwan/fzf-lua', 'nvim-lua/plenary.nvim'},
+    dependencies = {
+      "ibhagwan/fzf-lua",
+      "nvim-lua/plenary.nvim",
+    },
     config = function()
       require("parrot").setup({
         providers = {
@@ -155,34 +215,41 @@ packer.startup(function()
             api_key = os.getenv("ANTHROPIC_API_KEY"),
           },
         },
-	  })
+      })
     end,
-  })
+  },
 
-  use {
-    'nvim-lualine/lualine.nvim',
-    requires = { 'nvim-tree/nvim-web-devicons', opt = true }
-  }
-  use 'folke/tokyonight.nvim'
-  use {
-    "akinsho/toggleterm.nvim", tag = '*', config = function()
+  -- Status line
+  {
+    "nvim-lualine/lualine.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+  },
+
+  -- Theme
+  "folke/tokyonight.nvim",
+
+  -- Terminal
+  {
+    "akinsho/toggleterm.nvim",
+    version = "*",
+    config = function()
       require("toggleterm").setup()
-  end
-  }
-  use({
+    end,
+  },
+
+  -- Code outline
+  {
     "stevearc/aerial.nvim",
     config = function()
       require("aerial").setup()
     end,
-  })
-
-  end
-)
+  },
+})
 
 -- TREE SITTER CONFIG
 local configs = require'nvim-treesitter.configs'
 configs.setup {
-  ensure_installed = {"python", "lua", "rust", "toml", "html", "javascript"},
+  ensure_installed = {"python", "lua", "rust", "toml", "html", "javascript", "markdown"},
   auto_install = true,
   highlight = {
     enable = true,
@@ -472,59 +539,11 @@ vim.api.nvim_set_keymap('n', '<C-l>', '<C-w>l', { noremap = true, silent = true 
 
 vim.api.nvim_set_keymap('v', '<leader>l', ':\'<\'>Chat explain<CR>', { noremap = true, silent = true })
 
--- set autocmds for md files, wordwrap
-vim.api.nvim_create_augroup('MarkdownSettings', { clear = true })
-
--- Define the autocmds for the MarkdownSettings group
-vim.api.nvim_create_autocmd('FileType', {
-    group = 'MarkdownSettings',
-    pattern = 'markdown',
-    callback = function()
-        -- Set various options here
-        vim.opt_local.wrap = true
-        vim.opt_local.textwidth = 80
-        vim.opt_local.wrapmargin = 20
-        -- Add more settings as needed
-    end,
-})
-
--- start material gruvbox 
-local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
-parser_config.zimbu = {
-  install_info = {
-    url = "~/dev/random/tree-sitter-latex", -- local path or git repo
-    files = {"src/parser.c"}, -- note that some parsers also require src/scanner.c or src/scanner.cc
-    -- optional entries:
-    branch = "main", -- default branch in case of git repo if different from master
-    generate_requires_npm = false, -- if stand-alone parser without npm dependencies
-    requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
-  },
-  filetype = "zu", -- if filetype does not match the parser name
-}
-
 vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', 'w', ':w<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>r', 'q', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<leader>r', 'q', { noremap = true, silent = true })
 
-local dap = require('dap')
-dap.adapters.python = {
-  type = 'executable';
-  command = os.getenv('HOME')..'/.pyenv/shims/python'; -- Adjust as necessary
-  args = { '-m', 'debugpy.adapter' };
-}
-
-dap.configurations.python = {
-  {
-    type = 'python';
-    request = 'launch';
-    name = "Launch file";
-    program = "${file}"; -- This configuration will launch the current file if used.
-    pythonPath = function()
-      return '~/.pyenv/shims/python' -- Adjust to the path of your Python interpreter
-    end;
-  },
-}
 
 vim.api.nvim_set_keymap('n', '<leader>fu', '<cmd>lua require("telescope.builtin").lsp_references()<CR>', { noremap = true, silent = true })
 
@@ -591,35 +610,16 @@ vim.api.nvim_set_keymap(
   'n', '<leader>fw', ':lua search_current_word()<CR>',
   { noremap = true, silent = true }
 )
--- Get all available colorschemes
-local colorschemes = vim.fn.getcompletion('', 'color')
 
--- Seed the random generator for randomness
-math.randomseed(os.time())
-
--- Choose a random colorscheme from the list
-local random_colorscheme = colorschemes[math.random(#colorschemes)]
 
 -- Apply the chosen colorscheme
-vim.cmd("colorscheme " .. random_colorscheme)
+vim.cmd("colorscheme elflord ")
+
 
 -- Print the selected colorscheme to the command line
-print("Randomly selected colorscheme: " .. random_colorscheme)
 vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>r', 'q', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<leader>r', 'q', { noremap = true, silent = true })
-
--- Get all available colorschemes
-local colorschemes = vim.fn.getcompletion('', 'color')
-
--- Seed the random generator for randomness
-math.randomseed(os.time())
-
--- Choose a random colorscheme from the list
-local random_colorscheme = colorschemes[math.random(#colorschemes)]
-
--- Apply the chosen colorscheme
-vim.cmd("colorscheme " .. random_colorscheme)
 
 -- Print the selected colorscheme to the command line
 
@@ -631,12 +631,12 @@ vim.api.nvim_set_keymap(
 )
 
 require("aerial").setup({
-  open_automatic = true,
+  open_automatic = false,
 })
 
 
 vim.api.nvim_create_autocmd({"BufReadPost", "BufNewFile"}, {
-  pattern = {"*.py", "*.tsx", "*.jsx", "*.svelte"},
+  pattern = {"*.py"},
   callback = function()
     vim.cmd("AerialOpen!")
   end
@@ -645,3 +645,62 @@ vim.api.nvim_create_autocmd({"BufReadPost", "BufNewFile"}, {
 key_mapper("n", "}", "<cmd>AerialPrev<CR>")
 key_mapper("n", "{", "<cmd>AerialNext<CR>")
 key_mapper("n", "<leader>\\", "<cmd>colorscheme rose-pine-moon<CR>")
+
+-- Function to check plugin status
+function check_plugin_status()
+  -- List of plugins to check
+  local plugins = {
+    'nvim-treesitter',
+    'dressing.nvim',
+    'plenary.nvim',
+    'nui.nvim',
+    'render-markdown.nvim',
+    'nvim-cmp',
+    'nvim-web-devicons',
+    'img-clip.nvim',
+    'copilot.lua',
+    'avante.nvim',
+    'neovim',  -- rose-pine theme
+    'nvim-lspconfig',
+    'mason.nvim',
+    'mason-lspconfig.nvim',
+    'telescope.nvim',
+    'vim-ripgrep',
+    'nerdtree',
+    'vim-devicons',
+    'nerdtree-git-plugin',
+    'vim-floaterm',
+    'which-key.nvim',
+    'rust-tools.nvim',
+    'vimspector',
+    'barbar.nvim',
+    'todo-comments.nvim',
+    'trouble.nvim',
+    'nvim-autopairs',
+    'vim-surround',
+    'vim-illuminate',
+    'Comment.nvim',
+    'parrot.nvim',
+    'lualine.nvim',
+    'tokyonight.nvim',
+    'toggleterm.nvim',
+    'aerial.nvim'
+  }
+
+  -- Print header
+  print("\nPlugin Status Check:")
+  print("-------------------")
+
+  -- Check each plugin
+  for _, plugin in ipairs(plugins) do
+    local plugin_path = vim.fn.finddir(plugin, vim.o.runtimepath)
+    if plugin_path ~= "" then
+      print("✓ " .. plugin .. " (Loaded)")
+    else
+      print("✗ " .. plugin .. " (Not found)")
+    end
+  end
+end
+
+-- Create a command to check plugin status
+vim.api.nvim_create_user_command('CheckPlugins', check_plugin_status, {})

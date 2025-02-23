@@ -3,3 +3,4 @@ undodir/**
 undodir/
 
 plugin/packer_compiled.lua
+lazy-lock.json
