@@ -155,25 +155,6 @@ packer.startup(function()
             api_key = os.getenv("ANTHROPIC_API_KEY"),
           },
         },
-        hooks = {
-          Explain = function(prt, params)
-            local template = [[
-            Your task is to take the code snippet from {{filename}} and explain it with gradually increasing complexity.
-            Break down the code's functionality, purpose, and key components.
-            The goal is to help the reader understand what the code does and how it works.
-
-            ```{{filetype}}
-            {{selection}}
-            ```
-
-            Use the markdown format with codeblocks and inline code.
-            Explanation of the code above:
-            ]]
-            -- local model = prt.get_model("command")
-            -- prt.logger.info("Explaining selection with model: " .. model.name)
-            -- prt.Prompt(params, prt.ui.Target.new, model, nil, template)
-          end,
-          }
 	  })
     end,
   })
