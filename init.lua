@@ -77,6 +77,9 @@ require("lazy").setup({
   opts = {
     -- add any opts here
     -- for example
+    rag_service = {
+	  enabled = true, -- Enables the rag service, requires OPENAI_API_KEY to be set
+	},
     provider = "openai",
     openai = {
       endpoint = "https://api.openai.com/v1",
@@ -86,6 +89,7 @@ require("lazy").setup({
       max_tokens = 4096,
       -- reasoning_effort = "high" -- only supported for reasoning models (o1, etc.)
     },
+
   },
   -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
   build = "make",
@@ -246,23 +250,6 @@ require("lazy").setup({
   },
 })
 
--- TREE SITTER CONFIG
-local configs = require'nvim-treesitter.configs'
-configs.setup {
-  ensure_installed = {"python", "lua", "rust", "toml", "html", "javascript", "markdown"},
-  auto_install = true,
-  highlight = {
-    enable = true,
-    addition_vim_regex_highlighting=false,
-  },
-  ident = { enable = true }, 
-  rainbow = {
-    enable = true,
-    extended_mode = true,
-    max_file_lines = nil,
-  }
-}
-
 -- LSP SERVER CONFIG
 local lspconfig = require'lspconfig'
 
@@ -416,9 +403,8 @@ rt.setup({
   server = {
     on_attach = function(_, bufnr)
       -- Hover actions
-      vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
-      -- Code action groups
-      vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+      -- vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
+      -- vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
     end,
   },
 })
@@ -454,15 +440,14 @@ require("mason").setup({
 })
 
 require("mason-lspconfig").setup()
-
--- Move to previous/next
-key_mapper('n', '<C-PageUp>', '<Cmd>BufferPrevious<CR>')
-key_mapper('n', '<C-PageDown>', '<Cmd>BufferNext<CR>')
-key_mapper('n', '<A-c>', '<Cmd>BufferClose<CR>')
+--
+-- -- Move to previous/next
+key_mapper('n', '<C-left>', '<Cmd>BufferPrevious<CR>')
+key_mapper('n', '<C-right>', '<Cmd>BufferNext<CR>')
 
 require'barbar'.setup {
   animation = true,
-  sidebar_filetypes = {
+sidebar_filetypes = {
     NvimTree = true
   }
 }
@@ -613,7 +598,7 @@ vim.api.nvim_set_keymap(
 
 
 -- Apply the chosen colorscheme
-vim.cmd("colorscheme elflord ")
+vim.cmd("colorscheme elflord")
 
 
 -- Print the selected colorscheme to the command line
