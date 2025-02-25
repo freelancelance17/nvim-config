@@ -136,6 +136,8 @@ require("lazy").setup({
 
   -- Theme
   "rose-pine/neovim",
+  -- GIT
+  'f-person/git-blame.nvim',
 
   -- LSP
   "neovim/nvim-lspconfig",
