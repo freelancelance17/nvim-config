@@ -135,6 +135,7 @@ require("lazy").setup({
 },
 
   -- Theme
+  "sainnhe/everforest",
   "rose-pine/neovim",
   -- GIT
   'f-person/git-blame.nvim',
@@ -600,7 +601,7 @@ vim.api.nvim_set_keymap(
 
 
 -- Apply the chosen colorscheme
-vim.cmd("colorscheme elflord")
+vim.cmd("colorscheme everforest")
 
 
 -- Print the selected colorscheme to the command line
