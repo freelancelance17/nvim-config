@@ -62,13 +62,16 @@ vim.opt.rtp:prepend(lazypath)
 -- Configure lazy.nvim
 require("lazy").setup({
   -- Required plugins
-  {
-    "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
-    opts = {
-      ensure_installed = { "python", "lua", "rust", "toml", "html", "javascript", "markdown", "markdown_inline" }, -- specify the parsers
+    {
+      "nvim-treesitter/nvim-treesitter",
+      build = ":TSUpdate",
+      opts = {
+        ensure_installed = { "python", "lua", "rust", "toml", "html", "javascript", "markdown", "markdown_inline" }, -- specify the parsers
+        highlight = {
+          enable = true, -- enable highlighting
+        },
+      },
     },
-  },
     {
   "yetone/avante.nvim",
   event = "VeryLazy",
@@ -261,10 +264,6 @@ require'lspconfig'.pyright.setup{
 local default_config = {
   on_attach = custom_on_attach,
 }
-
--- setup language servers here
-require'lspconfig'.ts_ls.setup{}
-require'lspconfig'.svelte.setup{}
 
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
   vim.lsp.diagnostic.on_publish_diagnostics, {
@@ -614,12 +613,13 @@ vim.api.nvim_set_keymap(
 )
 
 require("aerial").setup({
+  -- most have global dependencies installed to work with typescript
   open_automatic = false,
 })
 
 
 vim.api.nvim_create_autocmd({"BufReadPost", "BufNewFile"}, {
-  pattern = {"*.py"},
+  pattern = {"*.py", "*.ts", "*.tsx"},
   callback = function()
     vim.cmd("AerialOpen!")
   end
@@ -687,3 +687,9 @@ end
 
 -- Create a command to check plugin status
 vim.api.nvim_create_user_command('CheckPlugins', check_plugin_status, {})
+
+-- setup language servers here
+require'lspconfig'.ts_ls.setup{}
+require'lspconfig'.svelte.setup{}
+
+
