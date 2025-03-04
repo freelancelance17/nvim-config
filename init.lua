@@ -135,6 +135,7 @@ require("lazy").setup({
   -- Theme
   'evanleck/vim-svelte',
   "sainnhe/everforest",
+  "freelancelance17/ursala.nvim",
   "rose-pine/neovim",
   -- GIT
   'f-person/git-blame.nvim',
