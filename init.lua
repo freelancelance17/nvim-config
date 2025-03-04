@@ -133,6 +133,7 @@ require("lazy").setup({
 },
 
   -- Theme
+  'evanleck/vim-svelte',
   "sainnhe/everforest",
   "rose-pine/neovim",
   -- GIT
@@ -619,7 +620,7 @@ require("aerial").setup({
 
 
 vim.api.nvim_create_autocmd({"BufReadPost", "BufNewFile"}, {
-  pattern = {"*.py", "*.ts", "*.tsx"},
+  pattern = {"*.py"},
   callback = function()
     vim.cmd("AerialOpen!")
   end
