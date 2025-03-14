@@ -135,6 +135,7 @@ require("lazy").setup({
   -- Theme
   'evanleck/vim-svelte',
   "sainnhe/everforest",
+  "freelancelance17/ursala.nvim",
   "rose-pine/neovim",
   -- GIT
   'f-person/git-blame.nvim',
@@ -252,14 +253,62 @@ require("lazy").setup({
   },
 })
 
+-- Set up lspconfig.
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
+-- Apply capabilities to both Python LSP servers
+require('lspconfig')['pyright'].setup {
+	capabilities = capabilities
+}
+require('lspconfig')['jedi_language_server'].setup {
+	capabilities = capabilities
+}
+
 -- LSP SERVER CONFIG
 local lspconfig = require'lspconfig'
 
+-- Common on_attach function to be used by both servers
+local python_on_attach = function(client, bufnr)
+  vim.api.nvim_buf_set_option(bufnr, 'wrap', true)
+  vim.api.nvim_buf_set_option(bufnr, 'linebreak', true)
+  
+  -- If this is Pyright, disable its completion in favor of Jedi
+  if client.name == "pyright" then
+    client.server_capabilities.completionProvider = false
+  end
+end
+
+-- Setup Pyright for type checking and diagnostics
 require'lspconfig'.pyright.setup{
-  on_attach = function(client, bufnr)
-    vim.api.nvim_buf_set_option(bufnr, 'wrap', true)
-    vim.api.nvim_buf_set_option(bufnr, 'linebreak', true)
-  end,
+  on_attach = python_on_attach,
+  settings = {
+    python = {
+      analysis = {
+        typeCheckingMode = "basic",
+        diagnosticMode = "workspace",
+        inlayHints = {
+          variableTypes = true,
+          functionReturnTypes = true,
+        },
+      },
+    },
+  },
+}
+
+-- Setup Jedi for completions and navigation
+require'lspconfig'.jedi_language_server.setup{
+  on_attach = python_on_attach,
+  init_options = {
+    completion = {
+      disableSnippets = false,
+      resolveEagerly = true,
+    },
+    diagnostics = {
+      enable = false,  -- Disable diagnostics from Jedi to avoid duplicates with Pyright
+      didOpen = false,
+      didChange = false,
+      didSave = false,
+    },
+  },
 }
 
 local default_config = {
