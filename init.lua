@@ -200,6 +200,7 @@ require("lazy").setup({
   "folke/trouble.nvim",
   "windwp/nvim-autopairs",
   "tpope/vim-surround",
+  'sindrets/diffview.nvim',
   "RRethy/vim-illuminate",
   {
     "numToStr/Comment.nvim",
