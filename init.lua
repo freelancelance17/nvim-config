@@ -260,8 +260,13 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities()
 require('lspconfig')['pyright'].setup {
 	capabilities = capabilities
 }
+
 require('lspconfig')['jedi_language_server'].setup {
-	capabilities = capabilities
+	capabilities = capabilities,
+	on_attach = function(client, bufnr)
+		-- Disable definition handling in Jedi
+		client.server_capabilities.definitionProvider = false
+	end
 }
 
 -- LSP SERVER CONFIG
@@ -278,39 +283,6 @@ local python_on_attach = function(client, bufnr)
   end
 end
 
--- Setup Pyright for type checking and diagnostics
-require'lspconfig'.pyright.setup{
-  on_attach = python_on_attach,
-  settings = {
-    python = {
-      analysis = {
-        typeCheckingMode = "basic",
-        diagnosticMode = "workspace",
-        inlayHints = {
-          variableTypes = true,
-          functionReturnTypes = true,
-        },
-      },
-    },
-  },
-}
-
--- Setup Jedi for completions and navigation
-require'lspconfig'.jedi_language_server.setup{
-  on_attach = python_on_attach,
-  init_options = {
-    completion = {
-      disableSnippets = false,
-      resolveEagerly = true,
-    },
-    diagnostics = {
-      enable = false,  -- Disable diagnostics from Jedi to avoid duplicates with Pyright
-      didOpen = false,
-      didChange = false,
-      didSave = false,
-    },
-  },
-}
 
 local default_config = {
   on_attach = custom_on_attach,
@@ -443,6 +415,33 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities()
 require('lspconfig')['pyright'].setup {
 	capabilities = capabilities
 }
+require("lspconfig").ruff.setup({
+  settings = {
+    ruff = {
+      -- Config options for ruff language server
+      -- See: https://github.com/charliermarsh/ruff-lsp
+      format = {
+        args = {},
+      },
+      lint = {
+        args = {},
+      },
+      organize_imports = true,
+    },
+  },
+  on_attach = function(client, bufnr)
+    -- Optional: Enable formatting on save
+    if client.supports_method("textDocument/formatting") then
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        buffer = bufnr,
+        callback = function()
+          vim.lsp.buf.format({ bufnr = bufnr })
+        end,
+      })
+    end
+  end,
+  capabilities = require("cmp_nvim_lsp").default_capabilities(),
+})
 
 -- setup for rust-tools 
 local rt = require("rust-tools")
@@ -521,7 +520,8 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 --   callback = function()
 --     local file = vim.fn.expand('%:p') -- Get the full path of the current file
 --     local escaped_file = vim.fn.shellescape(file) -- Escape the filename for shell usage
---     --vim.cmd('!' .. 'prettier --write ' .. escaped_file)
+--     vim.cmd('!' .. 'prettier --write ' .. escaped_file)
+--     vim.cmd('!' .. 'npx eslint --fix ' .. escaped_file)
 --   end,
 -- })
 
@@ -646,14 +646,15 @@ vim.api.nvim_set_keymap(
 
 
 -- Apply the chosen colorscheme
-vim.cmd("colorscheme everforest")
+vim.cmd("colorscheme rose-pine-dawn")
 
 
 -- Print the selected colorscheme to the command line
 vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>r', 'q', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<leader>r', 'q', { noremap = true, silent = true })
-
+-- Open Diff with main
+vim.api.nvim_set_keymap('n', '<C-d>', '<Cmd>DiffviewOpen main<CR>', { noremap = true, silent = true })
 -- Print the selected colorscheme to the command line
 
 vim.api.nvim_set_keymap(
