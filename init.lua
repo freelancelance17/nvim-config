@@ -61,6 +61,7 @@ vim.opt.rtp:prepend(lazypath)
 -- Configure lazy.nvim
 require("lazy").setup({
   -- Required plugins
+    { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
     {
       "nvim-treesitter/nvim-treesitter",
       build = ":TSUpdate",
@@ -84,7 +85,8 @@ require("lazy").setup({
 	},
     provider = "claude",
     claude = {
-      model = "claude-3-7-sonnet-20250219", -- your desired model (or use gpt-4o, etc.)
+      --model = "claude-3-7-sonnet-20250219", -- your desired model (or use gpt-4o, etc.)
+      model = "claude-opus-4-20250514"
     },
 
   },
@@ -284,9 +286,6 @@ require("lazy").setup({
     dependencies = { "nvim-tree/nvim-web-devicons" },
   },
 
-  -- Theme
-  "folke/tokyonight.nvim",
-
   -- Terminal
   {
     "akinsho/toggleterm.nvim",
@@ -472,7 +471,7 @@ require("lspconfig").ruff.setup({
       -- Config options for ruff language server
       -- See: https://github.com/charliermarsh/ruff-lsp
       format = {
-        args = {},
+        args = {"--config", "pyproject.toml"}
       },
       lint = {
         args = {},
@@ -609,9 +608,6 @@ require("toggleterm").setup()
 
 vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 
-vim.cmd[[colorscheme tokyonight]]
-
-
 -- Split windows
 vim.api.nvim_set_keymap('n', '<leader>v', ':vsplit<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>s', ':split<CR>', { noremap = true, silent = true })
@@ -697,16 +693,14 @@ vim.api.nvim_set_keymap(
 
 
 -- Apply the chosen colorscheme
-vim.cmd("colorscheme rose-pine-dawn")
+vim.cmd("colorscheme catppuccin-latte")
 
 
--- Print the selected colorscheme to the command line
 vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>r', 'q', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<leader>r', 'q', { noremap = true, silent = true })
 -- Open Diff with main
 vim.api.nvim_set_keymap('n', '<C-d>', '<Cmd>DiffviewOpen main<CR>', { noremap = true, silent = true })
--- Print the selected colorscheme to the command line
 
 vim.api.nvim_set_keymap(
   'n',
@@ -746,7 +740,7 @@ function check_plugin_status()
     'img-clip.nvim',
     'copilot.lua',
     'avante.nvim',
-    'neovim',  -- rose-pine theme
+    'neovim',
     'nvim-lspconfig',
     'mason.nvim',
     'mason-lspconfig.nvim',
