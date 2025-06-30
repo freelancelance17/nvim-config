@@ -66,80 +66,33 @@ require("lazy").setup({
       "nvim-treesitter/nvim-treesitter",
       build = ":TSUpdate",
       opts = {
-        ensure_installed = { "python", "lua", "rust", "toml", "html", "javascript", "markdown", "markdown_inline" }, -- specify the parsers
+        ensure_installed = { "python", "lua", "toml", "html", "javascript", "markdown", "markdown_inline" }, -- specify the parsers
         highlight = {
           enable = true, -- enable highlighting
         },
       },
     },
-    {
-  "yetone/avante.nvim",
-  event = "VeryLazy",
-  lazy = false,
-  version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
-  opts = {
-    -- add any opts here
-    -- for example
-    rag_service = {
-	  enabled = true, -- Enables the rag service, requires OPENAI_API_KEY to be set
-	},
-    provider = "claude",
-    claude = {
-      --model = "claude-3-7-sonnet-20250219", -- your desired model (or use gpt-4o, etc.)
-      model = "claude-opus-4-20250514"
-    },
-
-  },
-  -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-  build = "make",
-  -- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
+    
+  {
+  "olimorris/codecompanion.nvim",
+  opts = {},
   dependencies = {
-    "nvim-treesitter/nvim-treesitter",
-    "stevearc/dressing.nvim",
     "nvim-lua/plenary.nvim",
-    "MunifTanjim/nui.nvim",
-    --- The below dependencies are optional,
-    "echasnovski/mini.pick", -- for file_selector provider mini.pick
-    "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
-    "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
-    "ibhagwan/fzf-lua", -- for file_selector provider fzf
-    "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-    "zbirenbaum/copilot.lua", -- for providers='copilot'
-    {
-      -- support for image pasting
-      "HakonHarnes/img-clip.nvim",
-      event = "VeryLazy",
-      opts = {
-        -- recommended settings
-        default = {
-          embed_image_as_base64 = false,
-          prompt_for_file_name = false,
-          drag_and_drop = {
-            insert_mode = true,
-          },
-          -- required for Windows users
-          use_absolute_path = true,
-        },
-      },
-    },
-    {
-      -- Make sure to set this up properly if you have lazy=true
-      'MeanderingProgrammer/render-markdown.nvim',
-      opts = {
-        file_types = { "markdown", "Avante" },
-      },
-      ft = { "markdown", "Avante" },
-    },
+    "nvim-treesitter/nvim-treesitter",
   },
+  {
+  "MeanderingProgrammer/render-markdown.nvim",
+  ft = { "markdown", "codecompanion" }
 },
-
+  },
   -- Theme
   'evanleck/vim-svelte',
-  "sainnhe/everforest",
   "freelancelance17/ursala.nvim",
-  "rose-pine/neovim",
+
   -- GIT
   'f-person/git-blame.nvim',
+  "Xuyuanp/nerdtree-git-plugin",
+  'sindrets/diffview.nvim',
 
   -- LSP
   "neovim/nvim-lspconfig",
@@ -162,22 +115,10 @@ require("lazy").setup({
   -- File tree
   "preservim/nerdtree",
   "ryanoasis/vim-devicons",
-  "Xuyuanp/nerdtree-git-plugin",
 
   -- Terminal
   "voldikss/vim-floaterm",
 
-  -- Completion
-  -- "hrsh7th/cmp-nvim-lsp",
-  -- "hrsh7th/cmp-buffer",
-  -- "hrsh7th/cmp-path",
-  -- "hrsh7th/cmp-cmdline",
-  -- "hrsh7th/cmp-vsnip",
-  -- "hrsh7th/vim-vsnip",
-  -- "hrsh7th/cmp-nvim-lua",
-  -- "hrsh7th/cmp-nvim-lsp-signature-help",
-  --
-  
   {'hrsh7th/nvim-cmp',
 	event = 'InsertEnter',  -- Plugin loaded when insert mode entered
 	dependencies = {
@@ -373,8 +314,6 @@ vim.opt.termguicolors = true
 key_mapper('n', '\\\\', '<Cmd>NERDTreeFocus<CR>')
 
 
--- config for cmp
--- Set up nvim-cmp.
 -- Completion Plugin Setup
 local cmp = require'cmp'
 cmp.setup({
@@ -461,7 +400,6 @@ sources = cmp.config.sources({
 
 -- Set up lspconfig.
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
--- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
 require('lspconfig')['pyright'].setup {
 	capabilities = capabilities
 }
@@ -493,19 +431,6 @@ require("lspconfig").ruff.setup({
   capabilities = require("cmp_nvim_lsp").default_capabilities(),
 })
 
--- setup for rust-tools 
-local rt = require("rust-tools")
-
-rt.setup({
-  server = {
-    on_attach = function(_, bufnr)
-      -- Hover actions
-      -- vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
-      -- vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
-    end,
-  },
-})
-
 -- LSP Diagnostics Options Setup 
 --
 vim.diagnostic.config({
@@ -515,6 +440,7 @@ vim.diagnostic.config({
   update_in_insert = false,
   severity_sort = false,
 })
+
 -- You will likely want to reduce updatetime which affects CursorHold
 -- note: this setting is global and should be set only once
 vim.o.updatetime = 2000 
@@ -641,9 +567,9 @@ require('lualine').setup {
     always_divide_middle = true,
     globalstatus = false,
     refresh = {
-      statusline = 1000,
-      tabline = 1000,
-      winbar = 1000,
+      statusline = 10,
+      tabline = 10,
+      winbar = 10,
     }
   },
   sections = {
@@ -726,67 +652,25 @@ key_mapper("n", "}", "<cmd>AerialPrev<CR>")
 key_mapper("n", "{", "<cmd>AerialNext<CR>")
 key_mapper("n", "<leader>\\", "<cmd>colorscheme rose-pine-moon<CR>")
 
--- Function to check plugin status
-function check_plugin_status()
-  -- List of plugins to check
-  local plugins = {
-    'nvim-treesitter',
-    'dressing.nvim',
-    'plenary.nvim',
-    'nui.nvim',
-    'render-markdown.nvim',
-    'nvim-cmp',
-    'nvim-web-devicons',
-    'img-clip.nvim',
-    'copilot.lua',
-    'avante.nvim',
-    'neovim',
-    'nvim-lspconfig',
-    'mason.nvim',
-    'mason-lspconfig.nvim',
-    'telescope.nvim',
-    'vim-ripgrep',
-    'nerdtree',
-    'vim-devicons',
-    'nerdtree-git-plugin',
-    'vim-floaterm',
-    'which-key.nvim',
-    'rust-tools.nvim',
-    'vimspector',
-    'barbar.nvim',
-    'todo-comments.nvim',
-    'trouble.nvim',
-    'nvim-autopairs',
-    'vim-surround',
-    'vim-illuminate',
-    'Comment.nvim',
-    'parrot.nvim',
-    'lualine.nvim',
-    'tokyonight.nvim',
-    'toggleterm.nvim',
-    'aerial.nvim'
-  }
-
-  -- Print header
-  print("\nPlugin Status Check:")
-  print("-------------------")
-
-  -- Check each plugin
-  for _, plugin in ipairs(plugins) do
-    local plugin_path = vim.fn.finddir(plugin, vim.o.runtimepath)
-    if plugin_path ~= "" then
-      print("✓ " .. plugin .. " (Loaded)")
-    else
-      print("✗ " .. plugin .. " (Not found)")
-    end
-  end
-end
-
--- Create a command to check plugin status
-vim.api.nvim_create_user_command('CheckPlugins', check_plugin_status, {})
-
 -- setup language servers here
 require'lspconfig'.ts_ls.setup{}
-require'lspconfig'.svelte.setup{}
 
+require("codecompanion").setup({
+  strategies = {
+    chat = {
+      adapter = "anthropic",
+    },
+    inline = {
+      adapter = "anthropic",
+    },
+  },
+})
+
+vim.g.maplocalleader = ","
+vim.keymap.set({ "n", "v" }, "<C-a>", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<LocalLeader>a", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
+vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
+
+-- Expand 'cc' into 'CodeCompanion' in the command line
+vim.cmd([[cab cc CodeCompanion]])
 
