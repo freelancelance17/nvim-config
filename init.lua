@@ -619,7 +619,7 @@ vim.api.nvim_set_keymap(
 
 
 -- Apply the chosen colorscheme
-vim.cmd("colorscheme catppuccin-latte")
+--vim.cmd("colorscheme catppuccin-latte")
 
 
 vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
@@ -654,6 +654,12 @@ key_mapper("n", "<leader>\\", "<cmd>colorscheme rose-pine-moon<CR>")
 
 -- setup language servers here
 require'lspconfig'.ts_ls.setup{}
+
+require("lspconfig").csharp_ls.setup({
+  capabilities = require("cmp_nvim_lsp").default_capabilities(),
+  on_attach = function(client, bufnr)
+  end,
+})
 
 require("codecompanion").setup({
   strategies = {
