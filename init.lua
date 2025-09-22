@@ -62,7 +62,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   -- Required plugins
     { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
-    {
+     {
       "nvim-treesitter/nvim-treesitter",
       build = ":TSUpdate",
       opts = {
@@ -248,11 +248,11 @@ require("lazy").setup({
 -- Set up lspconfig.
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 -- Apply capabilities to both Python LSP servers
-require('lspconfig')['pyright'].setup {
+vim.lsp.config.pyright = {
 	capabilities = capabilities
 }
 
-require('lspconfig')['jedi_language_server'].setup {
+vim.lsp.config.jedi_language_server =  {
 	capabilities = capabilities,
 	on_attach = function(client, bufnr)
 		-- Disable definition handling in Jedi
@@ -399,11 +399,7 @@ sources = cmp.config.sources({
 })
 
 -- Set up lspconfig.
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
-require('lspconfig')['pyright'].setup {
-	capabilities = capabilities
-}
-require("lspconfig").ruff.setup({
+vim.lsp.config.ruff = {
   settings = {
     ruff = {
       -- Config options for ruff language server
@@ -429,7 +425,7 @@ require("lspconfig").ruff.setup({
     end
   end,
   capabilities = require("cmp_nvim_lsp").default_capabilities(),
-})
+}
 
 -- LSP Diagnostics Options Setup 
 --
@@ -642,7 +638,7 @@ require("aerial").setup({
 
 
 vim.api.nvim_create_autocmd({"BufReadPost", "BufNewFile"}, {
-  pattern = {"*.py"},
+  pattern = {"*.py", "*.cs"},
   callback = function()
     vim.cmd("AerialOpen!")
   end
@@ -653,13 +649,22 @@ key_mapper("n", "{", "<cmd>AerialNext<CR>")
 key_mapper("n", "<leader>\\", "<cmd>colorscheme rose-pine-moon<CR>")
 
 -- setup language servers here
-require'lspconfig'.ts_ls.setup{}
-
-require("lspconfig").csharp_ls.setup({
+vim.lsp.config.ts_ls = {}
+--
+vim.lsp.config.csharp_ls.setup={
   capabilities = require("cmp_nvim_lsp").default_capabilities(),
   on_attach = function(client, bufnr)
   end,
-})
+}
+
+-- require("lspconfig").omnisharp.setup({
+--   capabilities = require("cmp_nvim_lsp").default_capabilities(),
+--   on_attach = function(client, bufnr)
+--   end,
+--   cmd = { "omnisharp", "--languageserver", "--hostPID", tostring(vim.fn.getpid()) },
+--   -- Optional: specify which solution/project files to use
+--   -- root_dir = require("lspconfig").util.root_pattern("*.sln", "*.csproj", "omnisharp.json", "function.json"),
+-- })
 
 require("codecompanion").setup({
   strategies = {
