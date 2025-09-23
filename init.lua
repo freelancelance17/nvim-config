@@ -62,17 +62,59 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   -- Required plugins
     { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
-     {
-      "nvim-treesitter/nvim-treesitter",
-      build = ":TSUpdate",
-      opts = {
-        ensure_installed = { "python", "lua", "toml", "html", "javascript", "markdown", "markdown_inline" }, -- specify the parsers
-        highlight = {
-          enable = true, -- enable highlighting
-        },
-      },
+{
+  "nvim-treesitter/nvim-treesitter",
+  build = ":TSUpdate",
+  event = { "BufReadPost", "BufNewFile" }, -- Load on file open
+  dependencies = {
+    "nvim-treesitter/nvim-treesitter-textobjects", -- Optional but recommended
+  },
+  opts = {
+    ensure_installed = { 
+      "c_sharp", 
+      "python", 
+      "lua", 
+      "toml", 
+      "html", 
+      "javascript",
+      "typescript", -- Common with JS
+      "json", 
+      "yaml",
+      "markdown", 
+      "markdown_inline",
+      "vim", 
+      "vimdoc", -- For vim help files
+      "bash",
+      "css" -- Useful with HTML
     },
     
+    -- Install parsers synchronously (only applied to `ensure_installed`)
+    sync_install = false,
+    
+    -- Automatically install missing parsers when entering buffer
+    auto_install = true,
+    
+    highlight = {
+      enable = true,
+      -- Disable vim regex highlighting for better performance
+      additional_vim_regex_highlighting = false,
+    },
+    
+    indent = {
+      enable = true, -- Better indentation
+    },
+    },
+    
+    -- Optional: Text objects (requires nvim-treesitter-textobjects)
+  config = function(_, opts)
+    require("nvim-treesitter.configs").setup(opts)
+    
+    -- -- Optional: Set up folding
+    -- vim.opt.foldmethod = "expr"
+    -- vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+    -- vim.opt.foldlevelstart = 99 -- Don't fold by default
+  end,
+},
   {
   "olimorris/codecompanion.nvim",
   opts = {},
@@ -172,6 +214,19 @@ require("lazy").setup({
 
   -- Other utilities
   "folke/which-key.nvim",
+  {
+  'projekt0n/github-nvim-theme',
+  name = 'github-theme',
+  lazy = false, -- make sure we load this during startup if it is your main colorscheme
+  priority = 1000, -- make sure to load this before all the other start plugins
+  config = function()
+    require('github-theme').setup({
+      -- ...
+    })
+
+    vim.cmd('colorscheme github_dark_high_contrast')
+  end,
+},
 
   -- Rust
   "simrat39/rust-tools.nvim",
@@ -191,7 +246,50 @@ require("lazy").setup({
       require("todo-comments").setup {}
     end,
   },
+  {
   "folke/trouble.nvim",
+  opts = {}, -- for default options, refer to the configuration section for custom setup.
+  cmd = "Trouble",
+  modes = {
+    diagnostics = {
+      filter = {
+        severity = { vim.diagnostic.severity.ERROR, vim.diagnostic.severity.WARN }
+      }
+    }
+  },
+  keys = {
+    {
+      "<leader>xx",
+      "<cmd>Trouble diagnostics toggle<cr>",
+      desc = "Diagnostics (Trouble)",
+    },
+    {
+      "<leader>xX",
+      "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
+      desc = "Buffer Diagnostics (Trouble)",
+    },
+    {
+      "<leader>cs",
+      "<cmd>Trouble symbols toggle focus=false<cr>",
+      desc = "Symbols (Trouble)",
+    },
+    {
+      "<leader>cl",
+      "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
+      desc = "LSP Definitions / references / ... (Trouble)",
+    },
+    {
+      "<leader>xL",
+      "<cmd>Trouble loclist toggle<cr>",
+      desc = "Location List (Trouble)",
+    },
+    {
+      "<leader>xQ",
+      "<cmd>Trouble qflist toggle<cr>",
+      desc = "Quickfix List (Trouble)",
+    },
+  },
+},
   "windwp/nvim-autopairs",
   "tpope/vim-surround",
   'sindrets/diffview.nvim',
