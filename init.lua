@@ -270,12 +270,13 @@ require("lazy").setup({
     },
     {
       "<leader>cs",
-      "<cmd>Trouble symbols toggle focus=false<cr>",
+      "<cmd>Trouble symbols toggle focus=false win.position=bottom<cr>",
       desc = "Symbols (Trouble)",
     },
     {
       "<leader>cl",
-      "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
+      --"<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
+      "<cmd>Trouble lsp toggle focus=false<cr>",
       desc = "LSP Definitions / references / ... (Trouble)",
     },
     {
@@ -744,7 +745,6 @@ vim.api.nvim_create_autocmd({"BufReadPost", "BufNewFile"}, {
 
 key_mapper("n", "}", "<cmd>AerialPrev<CR>")
 key_mapper("n", "{", "<cmd>AerialNext<CR>")
-key_mapper("n", "<leader>\\", "<cmd>colorscheme rose-pine-moon<CR>")
 
 -- setup language servers here
 vim.lsp.config.ts_ls = {}
