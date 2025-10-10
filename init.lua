@@ -248,14 +248,16 @@ require("lazy").setup({
   },
   {
   "folke/trouble.nvim",
-  opts = {}, -- for default options, refer to the configuration section for custom setup.
   cmd = "Trouble",
-  modes = {
-    diagnostics = {
-      filter = {
-        severity = { vim.diagnostic.severity.ERROR, vim.diagnostic.severity.WARN }
+  opts = {
+    modes = {
+      diagnostics = {
+        filter = {
+          severity = { vim.diagnostic.severity.ERROR, vim.diagnostic.severity.WARN }
+        }
       }
-    }
+    },
+    open_no_results = true,
   },
   keys = {
     {
@@ -270,7 +272,7 @@ require("lazy").setup({
     },
     {
       "<leader>cs",
-      "<cmd>Trouble symbols toggle focus=false win.position=bottom<cr>",
+      "<cmd>Trouble symbols toggle focus=false win.position=right win.size=0.25<cr>",
       desc = "Symbols (Trouble)",
     },
     {
@@ -660,7 +662,7 @@ require('lualine').setup {
     },
     ignore_focus = {},
     always_divide_middle = true,
-    globalstatus = false,
+    globalstatus = true,
     refresh = {
       statusline = 10,
       tabline = 10,
@@ -739,12 +741,20 @@ require("aerial").setup({
 vim.api.nvim_create_autocmd({"BufReadPost", "BufNewFile"}, {
   pattern = {"*.py", "*.cs"},
   callback = function()
-    vim.cmd("AerialOpen!")
+    --vim.cmd("AerialOpen!")
+    --vim.cmd("Trouble symbols toggle focus=false win.position=right win.size=0.25")
   end
 })
 
-key_mapper("n", "}", "<cmd>AerialPrev<CR>")
-key_mapper("n", "{", "<cmd>AerialNext<CR>")
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function()
+    vim.cmd("Trouble diagnostics")
+    vim.cmd("Trouble symbols win.size=.25")
+  end,
+})
+
+key_mapper("n", "}", "<cmd>Trouble symbols prev jump=true<cr>")
+key_mapper("n", "{", "<cmd>Trouble symbols next jump=true<cr>")
 
 -- setup language servers here
 vim.lsp.config.ts_ls = {}
