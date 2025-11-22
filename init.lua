@@ -584,7 +584,7 @@ require('Comment').setup()
 vim.api.nvim_create_autocmd("BufWritePost", {
   pattern = "*.py",
   callback = function()
-    vim.cmd([[!black % ]])
+    vim.cmd([[!ruff format % ]])
   end,
 })
 

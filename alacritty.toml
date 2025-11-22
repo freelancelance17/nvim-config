@@ -1,0 +1,56 @@
+# Alacritty Configuration File
+# For more configuration options, see: https://alacritty.org/config-alacritty.html
+
+# Window settings
+[window]
+# Window dimensions (changes require restart)
+dimensions = { columns = 120, lines = 40 }
+
+# Window padding
+padding = { x = 10, y = 10 }
+
+# Spread additional padding evenly around the terminal content
+dynamic_padding = true
+
+# Window decorations
+# Options: full, none, transparent, buttonless
+decorations = "full"
+
+# Startup mode
+# Options: Windowed, Maximized, Fullscreen
+startup_mode = "Windowed"
+
+# Window opacity (0.0 - 1.0)
+opacity = 1.0
+
+# Font configuration
+[font]
+size = 13.0
+
+[font.normal]
+family = "3270 Nerd Font Mono"
+style = "Regular"
+
+[colors.primary]
+background = '#1e1e1e'
+foreground = '#d4d4d4'
+
+[colors.normal]
+black   = '#000000'
+red     = '#cd3131'
+green   = '#0dbc79'
+yellow  = '#e5e510'
+blue    = '#2472c8'
+magenta = '#bc3fbc'
+cyan    = '#11a8cd'
+white   = '#e5e5e5'
+
+[colors.bright]
+black   = '#666666'
+red     = '#f14c4c'
+green   = '#23d18b'
+yellow  = '#f5f543'
+blue    = '#3b8eea'
+magenta = '#d670d6'
+cyan    = '#29b8db'
+white   = '#e5e5e5'
