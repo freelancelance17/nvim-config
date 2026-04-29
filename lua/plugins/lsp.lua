@@ -83,7 +83,7 @@ return {
       vim.keymap.set("n", "gW", vim.lsp.buf.workspace_symbol, opts)
       vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
       vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, opts)
-      vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+      vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
       vim.keymap.set("n", "<leader>af", vim.lsp.buf.code_action, opts)
       vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
 

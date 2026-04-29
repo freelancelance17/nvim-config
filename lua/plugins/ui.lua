@@ -8,7 +8,7 @@ return {
     priority = 1000,
     config = function()
       require("github-theme").setup({})
-      vim.cmd("colorscheme github_dark_high_contrast")
+      vim.cmd("colorscheme github_dark")
     end,
   },
   "freelancelance17/ursala.nvim",
@@ -52,6 +52,40 @@ return {
         extensions = {},
       })
     end,
+  },
+
+  -- Noice (UI for messages, cmdline, popupmenu)
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "rcarriga/nvim-notify",
+    },
+    opts = {
+      cmdline = {
+        view = "cmdline",
+        format = {
+          filter = false,
+        },
+      },
+      lsp = {
+        hover = { enabled = true },
+        signature = { enabled = true },
+        override = {
+          ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+          ["vim.lsp.util.stylize_markdown"] = true,
+          ["cmp.entry.get_documentation"] = true,
+        },
+      },
+      presets = {
+        bottom_search = true,
+        command_palette = false,
+        long_message_to_split = true,
+        inc_rename = false,
+        lsp_doc_border = true,
+      },
+    },
   },
 
   -- Tabs

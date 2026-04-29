@@ -25,4 +25,5 @@ vim.wo.relativenumber = true
 vim.wo.signcolumn = "yes"
 vim.wo.wrap = true
 vim.opt.laststatus = 3
+vim.o.cmdheight = 1
 vim.o.updatetime = 2000
