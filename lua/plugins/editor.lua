@@ -19,6 +19,17 @@ return {
   },
   {
     "folke/trouble.nvim",
+    -- nvim 0.12: patch deprecated client.request dot-call in the active code path
+    build = function()
+      local path = vim.fn.stdpath("data") .. "/lazy/trouble.nvim/lua/trouble/sources/lsp.lua"
+      local lines = vim.fn.readfile(path)
+      local content = table.concat(lines, "\n")
+      content = content:gsub(
+        "        or client%.request",
+        "        or function(_, ...) return client:request(...) end"
+      )
+      vim.fn.writefile(vim.split(content, "\n"), path)
+    end,
     cmd = "Trouble",
     opts = {
       modes = {

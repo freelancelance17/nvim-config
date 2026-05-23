@@ -1,6 +1,24 @@
 return {
   {
     "neovim/nvim-lspconfig",
+    -- nvim 0.12: patch deprecated client.request dot-calls in bundled server configs
+    build = function()
+      local base = vim.fn.stdpath("data") .. "/lazy/nvim-lspconfig/lua/lspconfig/configs/"
+      local files = {
+        base .. "rust_analyzer.lua",
+        base .. "pyright.lua",
+      }
+      for _, path in ipairs(files) do
+        local ok, lines = pcall(vim.fn.readfile, path)
+        if ok then
+          local content = table.concat(lines, "\n")
+          local patched = content:gsub("client%.request%(", "client:request(")
+          if patched ~= content then
+            vim.fn.writefile(vim.split(patched, "\n"), path)
+          end
+        end
+      end
+    end,
     dependencies = {
       "anott03/nvim-lspinstall",
       "hrsh7th/cmp-nvim-lsp",
@@ -19,14 +37,49 @@ return {
           },
         },
       })
-      require("mason-lspconfig").setup()
+
+      -- Exclude rust_analyzer: rustaceanvim owns that LSP client.
+      -- Without this, mason-lspconfig auto-enables rust_analyzer and you get two instances.
+      require("mason-lspconfig").setup({
+        automatic_enable = {
+          exclude = { "rust_analyzer" },
+        },
+      })
 
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
+      -- ── Pyright ────────────────────────────────────────────────────────────
+      -- Primary Python LSP: type checking, completions, go-to-def, hover.
       vim.lsp.config.pyright = {
         capabilities = capabilities,
+        on_attach = function(client, bufnr)
+          -- Enable inlay hints per-buffer (mirrors the Rust setup)
+          vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+        end,
+        settings = {
+          python = {
+            analysis = {
+              -- "basic" catches most real errors without being noisy
+              typeCheckingMode = "basic",
+              -- Auto-search for installed packages
+              autoSearchPaths = true,
+              useLibraryCodeForTypes = true,
+              -- Inlay hints
+              inlayHints = {
+                variableTypes = true,        -- `x: int` after let-style assignments
+                functionReturnTypes = true,  -- `-> str` after function defs
+                parameterNames = true,       -- `foo(x=1)` call-site parameter labels
+                parameterTypes = false,      -- off: param types are noisy in sigs
+              },
+            },
+          },
+        },
       }
 
+      -- ── Jedi ───────────────────────────────────────────────────────────────
+      -- Optional secondary completions server. Only runs if jedi-language-server
+      -- is installed (`pip install jedi-language-server` or via Mason).
+      -- definitionProvider disabled to avoid competing with pyright on gd.
       vim.lsp.config.jedi_language_server = {
         capabilities = capabilities,
         on_attach = function(client, bufnr)
@@ -34,6 +87,9 @@ return {
         end,
       }
 
+      -- ── Ruff ───────────────────────────────────────────────────────────────
+      -- Fast linter + formatter. Only runs if ruff is installed
+      -- (`pip install ruff` or `mason install ruff`).
       vim.lsp.config.ruff = {
         settings = {
           ruff = {
@@ -43,8 +99,14 @@ return {
           },
         },
         on_attach = function(client, bufnr)
-          if client.supports_method("textDocument/formatting") then
+          -- Use client:supports_method (colon) — dot-call is deprecated in nvim 0.12
+          if client:supports_method("textDocument/formatting") then
+            -- Guard with a named group so reattach doesn't register duplicates
+            local group = vim.api.nvim_create_augroup(
+              "RuffFormatOnSave_" .. bufnr, { clear = true }
+            )
             vim.api.nvim_create_autocmd("BufWritePre", {
+              group = group,
               buffer = bufnr,
               callback = function()
                 vim.lsp.buf.format({ bufnr = bufnr })
@@ -55,6 +117,7 @@ return {
         capabilities = capabilities,
       }
 
+      -- ── TypeScript / C# ────────────────────────────────────────────────────
       vim.lsp.config.ts_ls = {}
 
       vim.lsp.config.csharp_ls = {
@@ -62,19 +125,20 @@ return {
         on_attach = function(client, bufnr) end,
       }
 
+      -- Enable all servers; LSP simply won't start for servers that aren't installed
       vim.lsp.enable({ "pyright", "jedi_language_server", "ruff", "ts_ls", "csharp_ls" })
 
+      -- ── Diagnostics ────────────────────────────────────────────────────────
       vim.diagnostic.config({
         virtual_text = true,
         signs = true,
         underline = true,
         update_in_insert = false,
-        severity_sort = false,
+        severity_sort = true,  -- errors first, then warnings, hints last
       })
 
-      vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
-
-      -- LSP keymaps
+      -- ── Global LSP keymaps ─────────────────────────────────────────────────
+      -- (Rust gets its own overrides in rust.lua on_attach, e.g. K → hover actions)
       local opts = { noremap = true, silent = true }
       vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
       vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
@@ -87,11 +151,23 @@ return {
       vim.keymap.set("n", "<leader>af", vim.lsp.buf.code_action, opts)
       vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
 
-      -- Open Trouble on LSP attach
+      -- ── Auto-open Trouble ──────────────────────────────────────────────────
+      -- Guard: only open once per buffer, not once per LSP client that attaches.
+      -- Without this, 3 Python LSPs would trigger 3 Trouble opens on the same buffer.
+      local trouble_opened = {}
       vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function()
+        callback = function(args)
+          local bufnr = args.buf
+          if trouble_opened[bufnr] then return end
+          trouble_opened[bufnr] = true
           vim.cmd("Trouble diagnostics")
           vim.cmd("Trouble symbols win.size=.25")
+          -- Clean up when the buffer is deleted so re-opening works
+          vim.api.nvim_create_autocmd("BufDelete", {
+            buffer = bufnr,
+            once = true,
+            callback = function() trouble_opened[bufnr] = nil end,
+          })
         end,
       })
     end,
