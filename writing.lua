@@ -238,10 +238,8 @@ vim.api.nvim_create_autocmd('FileType', {
     end,
 })
 
-vim.api.nvim_set_keymap('n', 'q', ':bd<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>q', ':bd<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', 'w', ':w<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>r', 'q', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('v', '<leader>r', 'q', { noremap = true, silent = true })
 
 function search_current_word()
   local word = vim.fn.expand('<cword>')  -- Get the word under the cursor

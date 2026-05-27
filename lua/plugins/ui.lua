@@ -31,7 +31,10 @@ return {
           refresh = { statusline = 10, tabline = 10, winbar = 10 },
         },
         sections = {
-          lualine_a = { "mode" },
+          lualine_a = { "mode", function()
+            local reg = vim.fn.reg_recording()
+            return reg ~= "" and "● @" .. reg or ""
+          end },
           lualine_b = { "branch", "diff", "diagnostics" },
           lualine_c = { { "filename", path = 1 } },
           lualine_x = { "encoding", "fileformat", "filetype" },

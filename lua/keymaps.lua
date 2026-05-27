@@ -9,10 +9,8 @@ vim.keymap.set("n", "<C-k>", "<C-w>k", opts)
 vim.keymap.set("n", "<C-l>", "<C-w>l", opts)
 
 -- Misc
-vim.keymap.set("n", "q", ":bd<CR>", opts)
+vim.keymap.set("n", "<leader>q", ":bd<CR>", opts)
 vim.keymap.set("n", "w", ":w<CR>", opts)
-vim.keymap.set("n", "<leader>r", "q", opts)
-vim.keymap.set("v", "<leader>r", "q", opts)
 vim.keymap.set("n", "<C-d>", "<Cmd>DiffviewOpen main<CR>", opts)
 vim.keymap.set("v", "<leader>l", ":'<'>Chat explain<CR>", opts)
 
