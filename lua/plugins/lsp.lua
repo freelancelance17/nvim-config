@@ -130,12 +130,21 @@ return {
 
       -- ── Diagnostics ────────────────────────────────────────────────────────
       vim.diagnostic.config({
-        virtual_text = true,
+        virtual_text = false,
         signs = true,
         underline = true,
         update_in_insert = false,
-        severity_sort = true,  -- errors first, then warnings, hints last
+        severity_sort = true,
       })
+
+      local function set_diagnostic_underline_colors()
+        vim.api.nvim_set_hl(0, "DiagnosticUnderlineError", { underline = true, sp = "#e67e80" })
+        vim.api.nvim_set_hl(0, "DiagnosticUnderlineWarn",  { underline = true, sp = "#dbbc7f" })
+        vim.api.nvim_set_hl(0, "DiagnosticUnderlineInfo",  { underline = true, sp = "#7fbbb3" })
+        vim.api.nvim_set_hl(0, "DiagnosticUnderlineHint",  { underline = true, sp = "#a7c080" })
+      end
+      set_diagnostic_underline_colors()
+      vim.api.nvim_create_autocmd("ColorScheme", { callback = set_diagnostic_underline_colors })
 
       -- ── Global LSP keymaps ─────────────────────────────────────────────────
       -- (Rust gets its own overrides in rust.lua on_attach, e.g. K → hover actions)
