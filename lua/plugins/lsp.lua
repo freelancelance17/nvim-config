@@ -123,16 +123,12 @@ return {
         capabilities = capabilities,
       }
 
-      -- ── TypeScript / C# ────────────────────────────────────────────────────
+      -- ── TypeScript ─────────────────────────────────────────────────────────
+      -- C# is handled by seblyng/roslyn.nvim in csharp.lua (parallels rustaceanvim).
       vim.lsp.config.ts_ls = {}
 
-      vim.lsp.config.csharp_ls = {
-        capabilities = capabilities,
-        on_attach = function(client, bufnr) end,
-      }
-
       -- Enable all servers; LSP simply won't start for servers that aren't installed
-      vim.lsp.enable({ "pyright", "jedi_language_server", "ruff", "ts_ls", "csharp_ls" })
+      vim.lsp.enable({ "pyright", "jedi_language_server", "ruff", "ts_ls" })
 
       -- ── Diagnostics ────────────────────────────────────────────────────────
       vim.diagnostic.config({
