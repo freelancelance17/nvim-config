@@ -1,5 +1,15 @@
 return {
-  "folke/which-key.nvim",
+  {
+    "folke/which-key.nvim",
+    config = function()
+      require("which-key").add({
+        { "<leader>d", group = "debug" },
+        { "<leader>r", group = "rust" },
+        { "<leader>f", group = "find" },
+        { "<leader>x", group = "diagnostics" },
+      })
+    end,
+  },
   "evanleck/vim-svelte",
   "windwp/nvim-autopairs",
   "tpope/vim-surround",

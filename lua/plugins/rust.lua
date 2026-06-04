@@ -7,7 +7,15 @@ return {
     lazy = false,
     ft = { "rust" },
     config = function()
+      local mason_path = vim.fn.stdpath("data") .. "/mason"
+      local codelldb_path = mason_path .. "/packages/codelldb/extension/adapter/codelldb"
+      local liblldb_path = mason_path .. "/packages/codelldb/extension/lldb/lib/liblldb.dylib"
+
       vim.g.rustaceanvim = {
+        dap = {
+          adapter = require("rustaceanvim.config").get_codelldb_adapter(codelldb_path, liblldb_path),
+        },
+
         tools = {
           -- Show hover actions in a popup rather than a split
           hover_actions = { auto_focus = true },
@@ -200,17 +208,47 @@ return {
       local dap = require("dap")
       local ui = require("dapui")
 
-      require("dapui").setup()
+      dap.set_log_level("DEBUG")
+
+      -- Breakpoint signs: distinct glyphs per type so you can tell them apart at a glance
+      vim.fn.sign_define("DapBreakpoint",          { text = "●", texthl = "DiagnosticError",   linehl = "", numhl = "" })
+      vim.fn.sign_define("DapBreakpointCondition", { text = "◉", texthl = "DiagnosticWarn",    linehl = "", numhl = "" })
+      vim.fn.sign_define("DapLogPoint",            { text = "◆", texthl = "DiagnosticInfo",    linehl = "", numhl = "" })
+      vim.fn.sign_define("DapStopped",             { text = "▶", texthl = "DiagnosticOk",      linehl = "CursorLine", numhl = "" })
+      vim.fn.sign_define("DapBreakpointRejected",  { text = "✕", texthl = "DiagnosticHint",    linehl = "", numhl = "" })
+
+      require("dapui").setup({
+        layouts = {
+          {
+            elements = {
+              { id = "scopes",      size = 0.40 },
+              { id = "breakpoints", size = 0.15 },
+              { id = "stacks",      size = 0.30 },
+              { id = "watches",     size = 0.15 },
+            },
+            position = "left",
+            size = 45,
+          },
+          {
+            elements = {
+              { id = "repl",    size = 0.5 },
+              { id = "console", size = 0.5 },
+            },
+            position = "bottom",
+            size = 12,
+          },
+        },
+      })
 
       require("nvim-dap-virtual-text").setup({
         display_callback = function(variable)
           local name = string.lower(variable.name)
           local value = string.lower(variable.value)
           if name:match("secret") or name:match("api") or value:match("secret") or value:match("api") then
-            return "*****"
+            return " *****"
           end
-          if #variable.value > 15 then
-            return " " .. string.sub(variable.value, 1, 15) .. "... "
+          if #variable.value > 40 then
+            return " " .. string.sub(variable.value, 1, 40) .. "…"
           end
           return " " .. variable.value
         end,
@@ -241,17 +279,37 @@ return {
         },
       }
 
-      vim.keymap.set("n", "<F9>", dap.toggle_breakpoint)
-      vim.keymap.set("n", "<space>gb", dap.run_to_cursor)
+      -- Step controls
+      vim.keymap.set("n", "<F5>",      dap.continue,                            { desc = "Debug: continue" })
+      vim.keymap.set("n", "<F10>",     dap.step_over,                           { desc = "Debug: step over" })
+      vim.keymap.set("n", "<F11>",     dap.step_into,                           { desc = "Debug: step into" })
+      vim.keymap.set("n", "<S-F11>",   dap.step_out,                            { desc = "Debug: step out" })
+      vim.keymap.set("n", "<S-F5>",    dap.close,                               { desc = "Debug: stop" })
+      vim.keymap.set("n", "<C-S-F5>",  dap.restart,                             { desc = "Debug: restart" })
+      vim.keymap.set("n", "<space>gb", dap.run_to_cursor,                       { desc = "Debug: run to cursor" })
+
+      -- Breakpoints
+      vim.keymap.set("n", "<F9>", dap.toggle_breakpoint, { desc = "Debug: toggle breakpoint" })
+      vim.keymap.set("n", "<S-F9>", function()
+        dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
+      end, { desc = "Debug: conditional breakpoint" })
+      vim.keymap.set("n", "<leader>dl", function()
+        dap.set_breakpoint(nil, nil, vim.fn.input("Log message: "))
+      end, { desc = "Debug: log point" })
+      vim.keymap.set("n", "<leader>dB", dap.clear_breakpoints, { desc = "Debug: clear all breakpoints" })
+
+      -- Inspect / UI
       vim.keymap.set("n", "<space>?", function()
         require("dapui").eval(nil, { enter = true })
-      end)
-      vim.keymap.set("n", "<F5>", dap.continue)
-      vim.keymap.set("n", "<F11>", dap.step_into)
-      vim.keymap.set("n", "<F10>", dap.step_over)
-      vim.keymap.set("n", "<S-F11>", dap.step_out)
-      vim.keymap.set("n", "<S-F5>", dap.close)
-      vim.keymap.set("n", "<C-S-F5>", dap.restart)
+      end, { desc = "Debug: eval expression" })
+      vim.keymap.set("v", "<space>?", function()
+        require("dapui").eval(nil, { enter = true })
+      end, { desc = "Debug: eval selection" })
+      vim.keymap.set("n", "<leader>du", ui.toggle, { desc = "Debug: toggle UI" })
+      vim.keymap.set("n", "<leader>dr", dap.repl.open, { desc = "Debug: open REPL" })
+      vim.keymap.set("n", "<leader>dL", function()
+        vim.cmd("edit " .. vim.fn.stdpath("state") .. "/dap.log")
+      end, { desc = "Debug: open log" })
 
       dap.listeners.before.attach.dapui_config = function() ui.open() end
       dap.listeners.before.launch.dapui_config = function() ui.open() end
