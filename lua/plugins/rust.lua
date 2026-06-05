@@ -20,7 +20,11 @@ return {
           -- Show hover actions in a popup rather than a split
           hover_actions = { auto_focus = true },
           -- Float window for inlay hint explanations etc.
-          float_win_config = { border = "rounded" },
+          float_win_config = {
+            border = "rounded",
+            max_width = math.floor(vim.o.columns * 0.8),
+            max_height = math.floor(vim.o.lines * 0.8),
+          },
         },
 
         server = {
