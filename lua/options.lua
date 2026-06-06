@@ -1,6 +1,7 @@
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
+vim.opt.fillchars = { eob = " " } -- hide the ~ end-of-buffer markers
 vim.o.termguicolors = true
 vim.o.syntax = "on"
 vim.o.errorbells = false

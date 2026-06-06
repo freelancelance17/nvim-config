@@ -19,7 +19,22 @@ return {
     version = "*",
     event = "VimEnter",
     keys = {
-      { "<C-t>", "<cmd>ToggleTerm<CR>", desc = "Toggle terminal" },
+      {
+        "<C-t>",
+        function()
+          -- The terminal is always docked open (edgy), so just focus it rather
+          -- than toggle. Fall back to opening it if it isn't present.
+          for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+            if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "toggleterm" then
+              vim.api.nvim_set_current_win(win)
+              vim.cmd("startinsert")
+              return
+            end
+          end
+          vim.cmd("ToggleTerm")
+        end,
+        desc = "Focus terminal",
+      },
     },
     config = function()
       require("toggleterm").setup({

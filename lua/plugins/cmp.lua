@@ -145,6 +145,17 @@ return {
         },
       })
 
+      -- Rust: rustaceanvim owns signature help natively; exclude the cmp source to prevent a duplicate popup
+      cmp.setup.filetype("rust", {
+        sources = cmp.config.sources({
+          { name = "nvim_lsp",  keyword_length = 1, priority = 1000 },
+          { name = "luasnip",   keyword_length = 2, priority = 750 },
+          { name = "path",      priority = 500 },
+        }, {
+          { name = "buffer", keyword_length = 3, priority = 250 },
+        }),
+      })
+
       -- Git commit completions
       cmp.setup.filetype("gitcommit", {
         sources = cmp.config.sources({
