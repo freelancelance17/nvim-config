@@ -8,7 +8,7 @@ return {
     priority = 1000,
     config = function()
       require("github-theme").setup({})
-      vim.cmd("colorscheme default")
+      vim.cmd("colorscheme retrobox")
     end,
   },
   "freelancelance17/ursala.nvim",
