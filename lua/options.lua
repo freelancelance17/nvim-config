@@ -1,6 +1,5 @@
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
-vim.g.NERDTreeShowHidden = 1
 
 vim.o.termguicolors = true
 vim.o.syntax = "on"
@@ -27,3 +26,7 @@ vim.wo.wrap = true
 vim.opt.laststatus = 3
 vim.o.cmdheight = 1
 vim.o.updatetime = 2000
+-- Don't auto-equalize splits; edgy.nvim (plugins/layout.lua) manages panel sizing.
+-- NOTE: we deliberately do NOT set global winwidth/winheight here — those leak into
+-- plugin windows (Telescope prompt, terminals) and blow them up to full size.
+vim.o.equalalways = false

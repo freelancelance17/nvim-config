@@ -22,6 +22,22 @@ return {
       { "<leader>dc", "<cmd>Telescope dap commands<CR>",         desc = "Debug: commands" },
     },
     config = function()
+      local actions = require("telescope.actions")
+      -- Opening a file from telescope can leave us in insert mode (the layout's
+      -- always-open terminal / an async startinsert wins focus). Force normal mode
+      -- after any select action; the deferred stopinsert beats the async insert.
+      local function select_then_normal(action)
+        return function(bufnr)
+          action(bufnr)
+          vim.schedule(function() vim.cmd("stopinsert") end)
+        end
+      end
+      local select_maps = {
+        ["<CR>"] = select_then_normal(actions.select_default),
+        ["<C-x>"] = select_then_normal(actions.select_horizontal),
+        ["<C-v>"] = select_then_normal(actions.select_vertical),
+        ["<C-t>"] = select_then_normal(actions.select_tab),
+      }
       require("telescope").setup({
         defaults = {
           vimgrep_arguments = {
@@ -31,6 +47,10 @@ return {
           prompt_prefix = "> ",
           selection_caret = "> ",
           path_display = { "truncate" },
+          mappings = {
+            i = select_maps,
+            n = select_maps,
+          },
         },
       })
       require("telescope").load_extension("dap")

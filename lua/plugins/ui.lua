@@ -8,7 +8,7 @@ return {
     priority = 1000,
     config = function()
       require("github-theme").setup({})
-      vim.cmd("colorscheme unokai")
+      vim.cmd("colorscheme default")
     end,
   },
   "freelancelance17/ursala.nvim",
@@ -209,7 +209,7 @@ return {
     config = function()
       require("barbar").setup({
         animation = true,
-        sidebar_filetypes = { NvimTree = true },
+        sidebar_filetypes = { ["neo-tree"] = true },
       })
     end,
   },

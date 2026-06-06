@@ -162,23 +162,30 @@ return {
       vim.keymap.set("n", "<leader>af", vim.lsp.buf.code_action, opts)
       vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
 
-      -- ── Auto-open Trouble ──────────────────────────────────────────────────
-      -- Guard: only open once per buffer, not once per LSP client that attaches.
-      -- Without this, 3 Python LSPs would trigger 3 Trouble opens on the same buffer.
-      local trouble_opened = {}
+      -- ── Auto-open Trouble panels ─────────────────────────────────────────────
+      -- Open the diagnostics/symbols panels when an LSP attaches, but only if a
+      -- window for that mode isn't already visible. We check the actual windows
+      -- (trouble tags each with vim.w[win].trouble.mode) rather than trouble's own
+      -- is_open(): edgy's window management desyncs trouble's internal view tracking,
+      -- so trouble thinks nothing is open and spawns a duplicate panel for every new
+      -- file. Scanning the real windows is the authoritative guard.
+      local function trouble_mode_visible(mode)
+        for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+          local t = vim.w[win].trouble
+          if t and t.mode == mode then
+            return true
+          end
+        end
+        return false
+      end
       vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function(args)
-          local bufnr = args.buf
-          if trouble_opened[bufnr] then return end
-          trouble_opened[bufnr] = true
-          vim.cmd("Trouble diagnostics")
-          vim.cmd("Trouble symbols win.size=.25")
-          -- Clean up when the buffer is deleted so re-opening works
-          vim.api.nvim_create_autocmd("BufDelete", {
-            buffer = bufnr,
-            once = true,
-            callback = function() trouble_opened[bufnr] = nil end,
-          })
+        callback = function()
+          if not trouble_mode_visible("diagnostics") then
+            vim.cmd("Trouble diagnostics focus=false")
+          end
+          if not trouble_mode_visible("symbols") then
+            vim.cmd("Trouble symbols focus=false")
+          end
         end,
       })
     end,
