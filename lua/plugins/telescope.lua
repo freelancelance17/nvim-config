@@ -1,6 +1,4 @@
 return {
-  "nvim-lua/popup.nvim",
-  "jremmen/vim-ripgrep",
   {
     "nvim-telescope/telescope.nvim",
     dependencies = {

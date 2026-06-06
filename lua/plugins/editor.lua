@@ -14,12 +14,8 @@ return {
   "windwp/nvim-autopairs",
   "tpope/vim-surround",
   "RRethy/vim-illuminate",
-  {
-    "numToStr/Comment.nvim",
-    config = function()
-      require("Comment").setup()
-    end,
-  },
+  -- Commenting (gc / gcc) is provided by Neovim's built-in commenting (0.10+),
+  -- so numToStr/Comment.nvim is no longer needed.
   {
     "folke/todo-comments.nvim",
     dependencies = "nvim-lua/plenary.nvim",
@@ -61,13 +57,5 @@ return {
       { "}", "<cmd>Trouble symbols prev jump=true<cr>", desc = "Previous symbol" },
       { "{", "<cmd>Trouble symbols next jump=true<cr>", desc = "Next symbol" },
     },
-  },
-  {
-    "stevearc/aerial.nvim",
-    config = function()
-      require("aerial").setup({
-        open_automatic = false,
-      })
-    end,
   },
 }

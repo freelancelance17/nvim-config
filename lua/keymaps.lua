@@ -16,13 +16,6 @@ vim.keymap.set("t", "<C-l>", "<C-\\><C-n><C-w>l", opts)
 vim.keymap.set("n", "<leader>q", ":bd<CR>", opts)
 vim.keymap.set("n", "w", ":w<CR>", opts)
 vim.keymap.set("n", "<C-d>", "<Cmd>DiffviewOpen main<CR>", opts)
-vim.keymap.set("v", "<leader>l", ":'<'>Chat explain<CR>", opts)
-
--- CodeCompanion
-vim.keymap.set({ "n", "v" }, "<C-a>", "<cmd>CodeCompanionActions<cr>", opts)
-vim.keymap.set({ "n", "v" }, "<LocalLeader>a", "<cmd>CodeCompanionChat Toggle<cr>", opts)
-vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", opts)
-vim.cmd([[cab cc CodeCompanion]])
 
 -- User commands
 vim.api.nvim_create_user_command("SurroundHelp", function()

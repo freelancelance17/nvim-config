@@ -24,7 +24,17 @@ return {
           local opts = { noremap = true, silent = true, buffer = true }
 
           vim.keymap.set("n", "<leader>pr", function()
-            vim.cmd("FloatermNew --autoclose=0 python3 " .. vim.fn.shellescape(vim.fn.expand("%:p")))
+            -- Run the current file in a throwaway floating terminal (toggleterm).
+            -- close_on_exit=false keeps the output up so you can read it.
+            local file = vim.fn.shellescape(vim.fn.expand("%:p"))
+            require("toggleterm.terminal").Terminal
+              :new({
+                cmd = "python3 " .. file,
+                direction = "float",
+                close_on_exit = false,
+                float_opts = { border = "rounded" },
+              })
+              :toggle()
           end, vim.tbl_extend("force", opts, { desc = "Python: run file" }))
 
           vim.keymap.set("n", "<leader>pd", function()

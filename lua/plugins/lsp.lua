@@ -20,7 +20,6 @@ return {
       end
     end,
     dependencies = {
-      "anott03/nvim-lspinstall",
       "hrsh7th/cmp-nvim-lsp",
       {
         "williamboman/mason.nvim",
