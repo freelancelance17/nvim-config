@@ -4,7 +4,10 @@ return {
     "lewis6991/gitsigns.nvim",
     lazy = false,
     opts = {
-      base = "main",
+      -- No `base` override: diff against the git index (default), so the gutter
+      -- shows unstaged changes. Setting base to a branch name like "main" breaks
+      -- in repos that use "master" (no such ref) — gitsigns can't diff and shows
+      -- nothing. Use diffview for branch-relative comparisons instead.
       attach_to_untracked = true,
       -- inline current-line blame (replaces the separate git-blame.nvim)
       current_line_blame = true,
