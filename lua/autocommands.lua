@@ -115,3 +115,51 @@ vim.api.nvim_create_autocmd("CursorMoved", {
   end,
 })
 
+-- Closing a hover/signature float (K) or a help window drops the cursor into the
+-- docked terminal instead of the code you were reading. The Rust K mapping uses
+-- rustaceanvim hover_actions auto_focus=true, so focus enters the float; when it
+-- closes, edgy's relayout sends focus to the bottom terminal dock. We remember
+-- the real editor window we last left and restore it after such a float closes.
+local last_editor_win
+local function is_real_editor_win(win)
+  return vim.api.nvim_win_is_valid(win)
+    and vim.api.nvim_win_get_config(win).relative == "" -- not a float
+    and vim.bo[vim.api.nvim_win_get_buf(win)].buftype == "" -- a normal file buffer
+    and not vim.w[win].trouble -- not a trouble panel
+end
+
+vim.api.nvim_create_autocmd("WinLeave", {
+  group = vim.api.nvim_create_augroup("TrackEditorWin", { clear = true }),
+  callback = function()
+    local win = vim.api.nvim_get_current_win()
+    if is_real_editor_win(win) then
+      last_editor_win = win
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd("WinClosed", {
+  group = vim.api.nvim_create_augroup("FloatCloseFocus", { clear = true }),
+  callback = function(args)
+    local closing = tonumber(args.match)
+    -- the closing window is still valid during WinClosed
+    if not closing or not vim.api.nvim_win_is_valid(closing) then
+      return
+    end
+    local is_float = vim.api.nvim_win_get_config(closing).relative ~= ""
+    local is_help = vim.bo[vim.api.nvim_win_get_buf(closing)].buftype == "help"
+    if not (is_float or is_help) then
+      return
+    end
+    -- after the close settles and edgy relays out, hop back to where we were
+    vim.schedule(function()
+      if last_editor_win and is_real_editor_win(last_editor_win) then
+        vim.api.nvim_set_current_win(last_editor_win)
+        -- focus may have passed through the docked terminal (toggleterm runs
+        -- startinsert), leaving us in insert mode — force normal mode.
+        vim.cmd("stopinsert")
+      end
+    end)
+  end,
+})
+
