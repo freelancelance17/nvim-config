@@ -164,7 +164,9 @@ return {
       -- Scroll keymaps for hover/signature floats
       views = {
         hover = {
-          border = { style = "rounded" },
+          -- Rounded frame + 1-cell side padding to match cmp's side_padding=1
+          -- (padding order: top, right, bottom, left).
+          border = { style = "rounded", padding = { 0, 1, 0, 1 } },
           position = { row = 2, col = 0 },
           size = { max_width = 80, max_height = 20 },
         },

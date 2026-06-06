@@ -41,6 +41,16 @@ return {
         direction = "horizontal",
         size = 8,
       })
+
+      -- In the docked terminal, <Esc> drops from terminal-insert to normal mode so
+      -- you can scroll up and read the output (then i/a to type again). Buffer-local
+      -- to toggleterm. Trade-off: TUI apps run in this terminal won't receive Esc.
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "toggleterm",
+        callback = function(args)
+          vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], { buffer = args.buf })
+        end,
+      })
     end,
   },
 }

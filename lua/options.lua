@@ -7,6 +7,10 @@ vim.o.syntax = "on"
 vim.o.errorbells = false
 vim.o.smartcase = true
 vim.o.showmode = false
+-- Default border for all floating windows (nvim 0.11+). cmp inherits this via
+-- cmp.config.window.get_border(), so completion/docs, hover, and signature
+-- floats all share the same rounded frame.
+vim.o.winborder = "rounded"
 vim.bo.swapfile = false
 vim.o.backup = false
 vim.o.undodir = vim.fn.stdpath("config") .. "/undodir"

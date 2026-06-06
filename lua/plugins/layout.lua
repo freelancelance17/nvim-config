@@ -65,7 +65,7 @@ return {
           filter = function(_buf, win)
             return vim.w[win].trouble and vim.w[win].trouble.mode == "diagnostics"
           end,
-          size = { height = 10 },
+          size = { height = 20 },
         },
         {
           title = "Terminal",
@@ -74,7 +74,7 @@ return {
             -- only the docked (non-floating) toggleterm belongs here
             return vim.api.nvim_win_get_config(win).relative == ""
           end,
-          size = { height = 8 },
+          size = { height = 16 },
         },
       },
     },

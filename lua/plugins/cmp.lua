@@ -6,20 +6,9 @@ return {
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
       "hrsh7th/cmp-nvim-lsp",
-      -- nvim 0.12: patch deprecated client.request dot-call (fires on every keystroke in fn args)
-      {
-        "hrsh7th/cmp-nvim-lsp-signature-help",
-        build = function()
-          local path = vim.fn.stdpath("data")
-            .. "/lazy/cmp-nvim-lsp-signature-help/lua/cmp_nvim_lsp_signature_help/init.lua"
-          local content = table.concat(vim.fn.readfile(path), "\n")
-          content = content:gsub(
-            "client%.request%(\'textDocument/signatureHelp\'",
-            "client:request('textDocument/signatureHelp'"
-          )
-          vim.fn.writefile(vim.split(content, "\n"), path)
-        end,
-      }, -- live function signature while typing
+      -- Signature help is owned by noice (lsp.signature) — a single, modern
+      -- renderer for all filetypes. We deliberately do NOT use
+      -- cmp-nvim-lsp-signature-help; running both produced duplicate popups.
       "hrsh7th/cmp-cmdline",
 
       -- Snippets: LuaSnip + a big library of pre-built snippets (includes Rust)
@@ -101,13 +90,11 @@ return {
 
         sources = cmp.config.sources({
           -- LSP completions — keyword_length=1 so you get suggestions immediately
-          { name = "nvim_lsp",                keyword_length = 1, priority = 1000 },
-          -- Live function signature help while typing args
-          { name = "nvim_lsp_signature_help", priority = 900 },
+          { name = "nvim_lsp", keyword_length = 1, priority = 1000 },
           -- Snippets
-          { name = "luasnip",                 keyword_length = 2, priority = 750 },
+          { name = "luasnip",  keyword_length = 2, priority = 750 },
           -- Filesystem paths
-          { name = "path",                    priority = 500 },
+          { name = "path",     priority = 500 },
         }, {
           -- Fallback sources (lower priority group)
           { name = "buffer", keyword_length = 3, priority = 250 },
@@ -127,11 +114,10 @@ return {
           format = function(entry, item)
             -- Source label shown in the menu column
             local source_labels = {
-              nvim_lsp                = "[LSP]",
-              nvim_lsp_signature_help = "[Sig]",
-              luasnip                 = "[Snip]",
-              buffer                  = "[Buf]",
-              path                    = "[Path]",
+              nvim_lsp = "[LSP]",
+              luasnip  = "[Snip]",
+              buffer   = "[Buf]",
+              path     = "[Path]",
             }
             item.menu = source_labels[entry.source.name] or string.format("[%s]", entry.source.name)
             return item
@@ -143,17 +129,6 @@ return {
         experimental = {
           ghost_text = { hl_group = "Comment" }, -- greyed-out inline preview of first suggestion
         },
-      })
-
-      -- Rust: rustaceanvim owns signature help natively; exclude the cmp source to prevent a duplicate popup
-      cmp.setup.filetype("rust", {
-        sources = cmp.config.sources({
-          { name = "nvim_lsp",  keyword_length = 1, priority = 1000 },
-          { name = "luasnip",   keyword_length = 2, priority = 750 },
-          { name = "path",      priority = 500 },
-        }, {
-          { name = "buffer", keyword_length = 3, priority = 250 },
-        }),
       })
 
       -- Git commit completions
