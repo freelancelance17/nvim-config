@@ -1,16 +1,19 @@
 return {
   -- Themes
+  -- onedark.nvim is the active colorscheme. lazy=false + high priority so it
+  -- loads and applies before other UI plugins render.
   {
-    "projekt0n/github-nvim-theme",
-    name = "github-theme",
+    "navarasu/onedark.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      require("github-theme").setup({})
-      vim.cmd("colorscheme retrobox")
+      require("onedark").setup({ style = "dark" })
+      require("onedark").load()
     end,
   },
-  "freelancelance17/ursala.nvim",
+  -- ursala is your own theme, kept available but lazy (load via `:colorscheme
+  -- ursala`) so it doesn't load at startup.
+  { "freelancelance17/ursala.nvim", lazy = true },
 
   -- Status line
   {
@@ -146,7 +149,6 @@ return {
         override = {
           ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
           ["vim.lsp.util.stylize_markdown"] = true,
-          ["cmp.entry.get_documentation"] = true,
         },
         -- Scroll the hover/signature float without leaving the code buffer
         documentation = {

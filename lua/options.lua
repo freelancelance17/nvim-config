@@ -3,6 +3,8 @@ vim.g.loaded_netrwPlugin = 1
 
 vim.opt.fillchars = { eob = " " } -- hide the ~ end-of-buffer markers
 vim.o.termguicolors = true
+-- Colorscheme is applied by the onedark.nvim plugin (see lua/plugins/ui.lua);
+-- it must load before being set, so it can't be applied here (pre-lazy).
 vim.o.syntax = "on"
 vim.o.errorbells = false
 vim.o.smartcase = true
