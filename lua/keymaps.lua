@@ -13,9 +13,16 @@ vim.keymap.set("t", "<C-k>", "<C-\\><C-n><C-w>k", opts)
 vim.keymap.set("t", "<C-l>", "<C-\\><C-n><C-w>l", opts)
 
 -- Misc
-vim.keymap.set("n", "<leader>q", ":bd<CR>", opts)
-vim.keymap.set("n", "w", ":w<CR>", opts)
-vim.keymap.set("n", "<C-d>", "<Cmd>DiffviewOpen main<CR>", opts)
+-- Snacks.bufdelete closes the buffer while keeping the window layout intact
+-- (plain :bd can collapse edgy docks/splits). Snacks loads at startup, so it's
+-- available by the time this is pressed.
+vim.keymap.set("n", "<leader>q", function() Snacks.bufdelete() end, opts)
+-- Save on <leader>w (the bare `w` is left as the word-motion it should be)
+vim.keymap.set("n", "<leader>w", ":w<CR>", opts)
+-- Diffview on <leader>gd (was <C-d>, which clobbered the half-page-down motion).
+-- No "main" arg: that ref doesn't exist in master-based repos; default diffs
+-- the working tree against the index/HEAD.
+vim.keymap.set("n", "<leader>gd", "<Cmd>DiffviewOpen<CR>", opts)
 
 -- User commands
 vim.api.nvim_create_user_command("SurroundHelp", function()

@@ -1,14 +1,15 @@
 return {
   -- Themes
-  -- onedark.nvim is the active colorscheme. lazy=false + high priority so it
-  -- loads and applies before other UI plugins render.
+  -- nightfox.nvim is the active colorscheme. lazy=false + high priority so it
+  -- loads and applies before other UI plugins render. Other styles ship in the
+  -- same plugin: dayfox, dawnfox, duskfox, nordfox, terafox, carbonfox.
   {
-    "navarasu/onedark.nvim",
+    "EdenEast/nightfox.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      require("onedark").setup({ style = "dark" })
-      require("onedark").load()
+      require("nightfox").setup({})
+      vim.cmd("colorscheme nightfox")
     end,
   },
   -- ursala is your own theme, kept available but lazy (load via `:colorscheme

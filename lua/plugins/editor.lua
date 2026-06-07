@@ -12,8 +12,18 @@ return {
   },
   "evanleck/vim-svelte",
   "windwp/nvim-autopairs",
-  "tpope/vim-surround",
-  "RRethy/vim-illuminate",
+  {
+    -- nvim-surround: lua replacement for tpope/vim-surround (dot-repeat,
+    -- treesitter-aware, same ys/cs/ds verbs).
+    "kylechui/nvim-surround",
+    version = "*",
+    event = "VeryLazy",
+    config = function()
+      require("nvim-surround").setup({})
+    end,
+  },
+  -- Reference highlighting/navigation is handled by snacks.words (see
+  -- plugins/snacks.lua), replacing RRethy/vim-illuminate.
   -- Commenting (gc / gcc) is provided by Neovim's built-in commenting (0.10+),
   -- so numToStr/Comment.nvim is no longer needed.
   {
