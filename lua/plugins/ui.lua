@@ -137,7 +137,10 @@ return {
           silent = true,   -- don't show "no information" if hover is empty
         },
         signature = { enabled = true },
-        -- Progress messages (e.g. "rust-analyzer: indexing 42/100")
+        -- Progress messages (e.g. "rust-analyzer: indexing 42/100"). These open a
+        -- transient `mini` float, which used to bounce the editor cursor up a line —
+        -- root cause was edgy relaying out on the float and not restoring the editor
+        -- window's view; now fixed in plugins/layout.lua, so this can stay enabled.
         progress = {
           enabled = true,
           throttle = 1000 / 30, -- max 30 updates/sec

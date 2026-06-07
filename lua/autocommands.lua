@@ -6,23 +6,6 @@ vim.api.nvim_create_autocmd("BufWritePost", {
   end,
 })
 
--- Auto save rust files
-local autosave_group = vim.api.nvim_create_augroup("AutoSave", { clear = true })
-vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
-  group = autosave_group,
-  pattern = "*.rs",
-  -- nested = true so the programmatic :write below fires BufWritePost, which is
-  -- what sends the LSP textDocument/didSave that triggers rust-analyzer's
-  -- checkOnSave (clippy) — i.e. the diagnostics rescan. Without this, autosave
-  -- writes the file but diagnostics only refresh on a manual :w.
-  nested = true,
-  callback = function()
-    if vim.bo.modified and vim.bo.buftype == "" and vim.fn.expand("%") ~= "" then
-      vim.cmd("silent! write")
-    end
-  end,
-})
-
 -- Open the IDE panels once at startup, then return focus to the editing window.
 -- edgy.nvim (see plugins/layout.lua) handles all placement, sizing, ordering, and
 -- pinning — here we just trigger each panel to open.
