@@ -20,7 +20,7 @@ return {
       end
     end,
     dependencies = {
-      "hrsh7th/cmp-nvim-lsp",
+      "saghen/blink.cmp",
       {
         "williamboman/mason.nvim",
         dependencies = { "williamboman/mason-lspconfig.nvim" },
@@ -51,7 +51,7 @@ return {
         },
       })
 
-      local capabilities = require("cmp_nvim_lsp").default_capabilities()
+      local capabilities = require("blink.cmp").get_lsp_capabilities()
 
       -- ── Pyright ────────────────────────────────────────────────────────────
       -- Primary Python LSP: type checking, completions, go-to-def, hover.

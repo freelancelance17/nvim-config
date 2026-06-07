@@ -1,162 +1,68 @@
 return {
   {
-    "hrsh7th/nvim-cmp",
+    -- blink.cmp: modern, fast completion engine. Replaces nvim-cmp and its
+    -- source plugins (cmp-buffer/path/cmdline/cmp_luasnip/cmp-nvim-lsp).
+    -- `version = "*"` pulls a release tag that ships a prebuilt fuzzy-matcher
+    -- binary, so there's no cargo build step.
+    "saghen/blink.cmp",
+    version = "*",
+    event = "InsertEnter",
     dependencies = {
-      -- Sources
-      "hrsh7th/cmp-buffer",
-      "hrsh7th/cmp-path",
-      "hrsh7th/cmp-nvim-lsp",
-      -- Signature help is owned by noice (lsp.signature) — a single, modern
-      -- renderer for all filetypes. We deliberately do NOT use
-      -- cmp-nvim-lsp-signature-help; running both produced duplicate popups.
-      "hrsh7th/cmp-cmdline",
-
-      -- Snippets: LuaSnip + a big library of pre-built snippets (includes Rust)
+      -- Snippets: LuaSnip + the friendly-snippets library (includes Rust)
       {
         "L3MON4D3/LuaSnip",
         version = "v2.*",
         build = "make install_jsregexp",
         dependencies = { "rafamadriz/friendly-snippets" },
         config = function()
-          -- Load VS Code style snippets from friendly-snippets
           require("luasnip.loaders.from_vscode").lazy_load()
         end,
       },
-      "saadparwaiz1/cmp_luasnip",
     },
-    config = function()
-      local cmp = require("cmp")
-      local luasnip = require("luasnip")
+    opts = {
+      -- Use LuaSnip as the snippet engine so friendly-snippets work
+      snippets = { preset = "luasnip" },
 
-      -- Helper: are we inside a snippet and can jump forward?
-      local has_words_before = function()
-        unpack = unpack or table.unpack
-        local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-        return col ~= 0
-          and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-      end
+      keymap = {
+        -- default preset: <C-n>/<C-p> select, <C-space> toggle, <C-e> hide,
+        -- <C-y> accept, <C-b>/<C-f> scroll docs, <C-k> toggle signature.
+        preset = "default",
+        -- <CR> accepts only when an item is selected, else inserts a newline
+        ["<CR>"] = { "accept", "fallback" },
+        -- Tab/S-Tab: navigate menu, else jump through snippet placeholders
+        ["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
+        ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+        -- Match the old cmp doc-scroll bindings
+        ["<C-f>"] = { "scroll_documentation_down", "fallback" },
+        ["<C-S-f>"] = { "scroll_documentation_up", "fallback" },
+      },
 
-      cmp.setup({
-        snippet = {
-          expand = function(args)
-            luasnip.lsp_expand(args.body)
-          end,
+      completion = {
+        -- Auto-show the documentation popup next to the menu
+        documentation = { auto_show = true, auto_show_delay_ms = 200 },
+        -- Greyed-out inline preview of the first suggestion (was cmp ghost_text)
+        ghost_text = { enabled = true },
+        menu = {
+          draw = {
+            -- kind icon | label | source label (mirrors the old [LSP]/[Snip] menu)
+            columns = {
+              { "kind_icon" },
+              { "label", "label_description", gap = 1 },
+              { "source_name" },
+            },
+          },
         },
+      },
 
-        mapping = cmp.mapping.preset.insert({
-          -- Navigate completion menu
-          ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }),
-          ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
+      sources = {
+        default = { "lsp", "path", "snippets", "buffer" },
+      },
 
-          -- Tab: select next OR jump through snippet placeholders
-          ["<Tab>"] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-              cmp.select_next_item()
-            elseif luasnip.expand_or_jumpable() then
-              luasnip.expand_or_jump()
-            elseif has_words_before() then
-              cmp.complete()
-            else
-              fallback()
-            end
-          end, { "i", "s" }),
+      -- Signature help is owned by noice (lsp.signature); don't double-render it.
+      signature = { enabled = false },
 
-          ["<S-Tab>"] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-              cmp.select_prev_item()
-            elseif luasnip.jumpable(-1) then
-              luasnip.jump(-1)
-            else
-              fallback()
-            end
-          end, { "i", "s" }),
-
-          -- Scroll docs popup
-          ["<C-S-f>"] = cmp.mapping.scroll_docs(-4),
-          ["<C-f>"] = cmp.mapping.scroll_docs(4),
-
-          -- Manually trigger completion
-          ["<C-Space>"] = cmp.mapping.complete(),
-
-          -- Abort
-          ["<C-e>"] = cmp.mapping.abort(),
-
-          -- Confirm
-          ["<CR>"] = cmp.mapping.confirm({
-            behavior = cmp.ConfirmBehavior.Replace,
-            select = false, -- only confirm if something is explicitly selected
-          }),
-        }),
-
-        sources = cmp.config.sources({
-          -- LSP completions — keyword_length=1 so you get suggestions immediately
-          { name = "nvim_lsp", keyword_length = 1, priority = 1000 },
-          -- Snippets
-          { name = "luasnip",  keyword_length = 2, priority = 750 },
-          -- Filesystem paths
-          { name = "path",     priority = 500 },
-        }, {
-          -- Fallback sources (lower priority group)
-          { name = "buffer", keyword_length = 3, priority = 250 },
-        }),
-
-        window = {
-          completion = cmp.config.window.bordered({
-            winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None",
-          }),
-          documentation = cmp.config.window.bordered({
-            winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None",
-          }),
-        },
-
-        formatting = {
-          fields = { "kind", "abbr", "menu" },
-          format = function(entry, item)
-            -- Source label shown in the menu column
-            local source_labels = {
-              nvim_lsp = "[LSP]",
-              luasnip  = "[Snip]",
-              buffer   = "[Buf]",
-              path     = "[Path]",
-            }
-            item.menu = source_labels[entry.source.name] or string.format("[%s]", entry.source.name)
-            return item
-          end,
-        },
-
-        -- Show completions even when there's only one candidate
-        -- (lets you see its docs without pressing Enter)
-        experimental = {
-          ghost_text = { hl_group = "Comment" }, -- greyed-out inline preview of first suggestion
-        },
-      })
-
-      -- Git commit completions
-      cmp.setup.filetype("gitcommit", {
-        sources = cmp.config.sources({
-          { name = "cmp_git" },
-        }, {
-          { name = "buffer" },
-        }),
-      })
-
-      -- Search completions ( / and ? )
-      cmp.setup.cmdline({ "/", "?" }, {
-        mapping = cmp.mapping.preset.cmdline(),
-        sources = {
-          { name = "buffer" },
-        },
-      })
-
-      -- Command-line completions ( : )
-      cmp.setup.cmdline(":", {
-        mapping = cmp.mapping.preset.cmdline(),
-        sources = cmp.config.sources({
-          { name = "path" },
-        }, {
-          { name = "cmdline" },
-        }),
-      })
-    end,
+      fuzzy = { implementation = "prefer_rust_with_warning" },
+    },
+    opts_extend = { "sources.default" },
   },
 }

@@ -28,7 +28,7 @@ return {
         },
 
         server = {
-          capabilities = require("cmp_nvim_lsp").default_capabilities(),
+          capabilities = require("blink.cmp").get_lsp_capabilities(),
 
           on_attach = function(client, bufnr)
             -- Enable inlay hints for this buffer
