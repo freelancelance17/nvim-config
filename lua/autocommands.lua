@@ -151,12 +151,25 @@ vim.api.nvim_create_autocmd("WinClosed", {
     if not (is_float or is_help) then
       return
     end
-    -- after the close settles and edgy relays out, hop back to where we were
+    -- after the close settles and edgy relays out, hop back to where we were —
+    -- but ONLY if the close actually dumped focus into the docked terminal. The
+    -- original failure is the Rust `K` hover (auto_focus) closing and edgy sending
+    -- focus to the bottom terminal dock. Guarding on that is essential: LSP
+    -- signature-help / hover / completion-doc floats open and close constantly
+    -- while you type, and without this guard every one of those closes would
+    -- steal focus and run stopinsert — kicking you out of insert mode mid-type
+    -- and yanking focus away from any float you just opened (e.g. the Mason UI).
     vim.schedule(function()
+      local cur = vim.api.nvim_get_current_win()
+      if not vim.api.nvim_win_is_valid(cur) then
+        return
+      end
+      if vim.bo[vim.api.nvim_win_get_buf(cur)].buftype ~= "terminal" then
+        return -- focus is fine (still in editor, or in a float like Mason) — leave it
+      end
       if last_editor_win and is_real_editor_win(last_editor_win) then
         vim.api.nvim_set_current_win(last_editor_win)
-        -- focus may have passed through the docked terminal (toggleterm runs
-        -- startinsert), leaving us in insert mode — force normal mode.
+        -- toggleterm runs startinsert, so we'd be in terminal-insert — force normal.
         vim.cmd("stopinsert")
       end
     end)

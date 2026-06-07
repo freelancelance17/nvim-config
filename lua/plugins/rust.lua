@@ -28,6 +28,32 @@ return {
         },
 
         server = {
+          -- Use the rust-analyzer that ships WITH the active rustup toolchain, not
+          -- Mason's independently-versioned standalone build. Mason's binary can lag
+          -- the toolchain's release, and when its proc-macro ABI is older than the
+          -- sysroot's proc-macro-srv, type inference ICEs with panics like
+          -- "failed to unify type owners" and "...no args were provided in instantiate".
+          -- "rustup run stable" guarantees frontend + sysroot + proc-macro-srv all
+          -- come from the same release. Run `rustup component add rust-analyzer` once.
+          -- Run rust-analyzer from the NIGHTLY toolchain. Stable 1.96.0's RA ICEs on
+          -- this repo (edition 2024 + sdl3): it stamps '{region error} on every
+          -- lifetime-bearing type while lowering inherent impls, then panics with
+          -- "&'{region error} mut #0 ... no args were provided in instantiate". It
+          -- fires from semantic tokens / inference / inherent-impl lowering — core
+          -- paths, so no diagnostic toggle suppresses it. Nightly's newer RA carries
+          -- the upstream fix, and "rustup run nightly" keeps RA + sysroot +
+          -- proc-macro-srv all on the same release. Requires (one-time):
+          --   rustup toolchain install nightly --profile minimal \
+          --     --component rust-analyzer --component rust-src
+          --   rustup component add clippy --toolchain nightly
+          -- TEMP: RUST_BACKTRACE/RA_LOG/--log-file stay until the fix is confirmed;
+          -- then drop them, leaving cmd = { "rustup", "run", "nightly", "rust-analyzer" }.
+          cmd = {
+            "env", "RUST_BACKTRACE=full", "RA_LOG=info",
+            "rustup", "run", "nightly", "rust-analyzer",
+            "--log-file", "/tmp/ra-debug.log", "--no-log-buffering",
+          },
+
           capabilities = require("blink.cmp").get_lsp_capabilities(),
 
           on_attach = function(client, bufnr)
@@ -140,7 +166,20 @@ return {
               -- Diagnostics
               diagnostics = {
                 enable = true,
-                experimental = { enable = true },
+                -- Experimental diagnostics enable rust-analyzer's MIR/borrow-based
+                -- mutability analysis, which ICEs on some code with
+                -- "-32603: request handler panicked: &'{region error} mut #0 has
+                -- parameters, but no args were provided in instantiate". That panic
+                -- spams error notifications as you type. Keep this off until a newer
+                -- rust-analyzer ships the upstream fix, then it can be flipped back on.
+                experimental = { enable = false },
+                -- rust-analyzer 1.96.0 ICEs on some code while computing its
+                -- mutability diagnostics (MIR + region inference), panicking with
+                -- "&'{region error} mut #0 ... no args were provided in instantiate".
+                -- These run by default (not gated by experimental). Disable them to
+                -- stop the panic spam until an upstream fix lands; rustc/clippy still
+                -- catch real mutability errors on save via check.command = clippy.
+                disabled = { "need-mut", "unused-mut" },
               },
 
               -- Better completion
