@@ -1,10 +1,7 @@
--- Python formatting on save
-vim.api.nvim_create_autocmd("BufWritePost", {
-  pattern = "*.py",
-  callback = function()
-    vim.cmd([[!ruff format % ]])
-  end,
-})
+-- Python format-on-save is handled by the ruff LSP (BufWritePre in
+-- lua/plugins/lsp.lua). The old `!ruff format %` BufWritePost shell-out is gone:
+-- it rewrote the file on disk behind the buffer's back, and with autosave it
+-- would fire a blocking shell command on every pause in typing.
 
 -- Open the IDE panels once at startup, then return focus to the editing window.
 -- edgy.nvim (see plugins/layout.lua) handles all placement, sizing, ordering, and

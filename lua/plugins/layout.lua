@@ -42,9 +42,36 @@ return {
           and vim.bo[buf].buftype == ""
           and not vim.w[win].trouble
         local view = guard and vim.api.nvim_win_call(win, vim.fn.winsaveview) or nil
+
+        -- Same problem, but for the docked TERMINAL. edgy's state.restore() skips
+        -- terminal buffers entirely ("never restore terminal buffers to prevent
+        -- flickering", edgy/state.lua) — so a relayout fired while you navigate the
+        -- MAIN buffer (noice/hover/completion floats trip Layout.update) resizes the
+        -- terminal panel, scrolls it, and edgy never puts it back. The terminal is
+        -- never the focused window during that nav, so the guard above can't catch
+        -- it. Snapshot every docked terminal's view and restore once after the
+        -- relayout completes. With animate disabled there's no intermediate resize to
+        -- flicker against, so the single trailing restore is safe.
+        local term_views = {}
+        for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+          local wbuf = vim.api.nvim_win_get_buf(w)
+          if
+            vim.bo[wbuf].buftype == "terminal"
+            and vim.api.nvim_win_get_config(w).relative == ""
+          then
+            term_views[w] = vim.api.nvim_win_call(w, vim.fn.winsaveview)
+          end
+        end
+
         edgy_update(...)
+
         if view and vim.api.nvim_win_is_valid(win) then
           pcall(vim.api.nvim_win_call, win, function() vim.fn.winrestview(view) end)
+        end
+        for w, v in pairs(term_views) do
+          if vim.api.nvim_win_is_valid(w) then
+            pcall(vim.api.nvim_win_call, w, function() vim.fn.winrestview(v) end)
+          end
         end
       end
 

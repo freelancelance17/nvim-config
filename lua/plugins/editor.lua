@@ -11,7 +11,8 @@ return {
     end,
   },
   "evanleck/vim-svelte",
-  "windwp/nvim-autopairs",
+  -- needs setup() to register its keymaps; a bare string spec never calls it
+  { "windwp/nvim-autopairs", event = "InsertEnter", config = true },
   {
     -- nvim-surround: lua replacement for tpope/vim-surround (dot-repeat,
     -- treesitter-aware, same ys/cs/ds verbs).
