@@ -77,6 +77,43 @@ return {
 
       require("edgy").setup(opts)
 
+      -- Toggle both bottom docks together (diagnostics + terminal each also have
+      -- their own toggle: <leader>xx and <C-t>). "On" is defined as either being
+      -- open: if so, close both; if both are already closed, open both. This
+      -- means a mixed state (one open, one closed) always resolves to fully
+      -- closed rather than fully open — closing is the safer default for a
+      -- "get me back to just my code" key.
+      vim.keymap.set("n", "<leader>xa", function()
+        local diag_open, term_open = false, false
+        for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+          local buf = vim.api.nvim_win_get_buf(win)
+          if vim.w[win].trouble and vim.w[win].trouble.mode == "diagnostics" then
+            diag_open = true
+          elseif
+            vim.bo[buf].filetype == "toggleterm"
+            and vim.api.nvim_win_get_config(win).relative == ""
+          then
+            term_open = true
+          end
+        end
+
+        if diag_open or term_open then
+          vim.cmd("Trouble diagnostics close")
+          for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+            local buf = vim.api.nvim_win_get_buf(win)
+            if
+              vim.bo[buf].filetype == "toggleterm"
+              and vim.api.nvim_win_get_config(win).relative == ""
+            then
+              vim.api.nvim_win_close(win, false)
+            end
+          end
+        else
+          vim.cmd("Trouble diagnostics open")
+          vim.cmd("ToggleTerm")
+        end
+      end, { desc = "Toggle diagnostics + terminal panels" })
+
       -- Make the bottom (and top) panels span the FULL window width, under the
       -- left/right side panels. edgy hardcodes its layout order as
       -- { bottom, top, left, right }, which positions the side bars LAST — so they

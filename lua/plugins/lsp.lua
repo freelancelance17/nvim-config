@@ -27,7 +27,7 @@ return {
       },
     },
     config = function()
-      vim.lsp.set_log_level("off")
+      vim.lsp.log.set_level("off")
 
       require("mason").setup({
         registries = {

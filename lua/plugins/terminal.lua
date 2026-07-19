@@ -28,8 +28,13 @@ return {
       })
 
       -- ── Keymaps ──────────────────────────────────────────────────────────
-      -- Focus the always-docked horizontal terminal (edgy keeps it open), or
-      -- open it if it isn't present. Only matches the docked (non-floating) one.
+      -- Toggle the docked horizontal terminal: open/focus it if it isn't the
+      -- current window, close it if it is. `:ToggleTerm` itself only keys off
+      -- open/closed state (Terminal:toggle in toggleterm/terminal.lua), so
+      -- calling it while already focused there closes it; calling it from
+      -- elsewhere would instead re-toggle (close) an instance docked in
+      -- another window, which is why the closed/elsewhere case below focuses
+      -- rather than calling :ToggleTerm.
       vim.keymap.set("n", "<C-t>", function()
         for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
           local buf = vim.api.nvim_win_get_buf(win)
@@ -37,13 +42,17 @@ return {
             vim.bo[buf].filetype == "toggleterm"
             and vim.api.nvim_win_get_config(win).relative == ""
           then
-            vim.api.nvim_set_current_win(win)
-            vim.cmd("startinsert")
+            if vim.api.nvim_get_current_win() == win then
+              vim.cmd("ToggleTerm")
+            else
+              vim.api.nvim_set_current_win(win)
+              vim.cmd("startinsert")
+            end
             return
           end
         end
         vim.cmd("ToggleTerm")
-      end, { desc = "Focus docked terminal" })
+      end, { desc = "Toggle docked terminal" })
 
       -- Floating terminal (was vim-floaterm's <leader>ft / t)
       vim.keymap.set("n", "<leader>ft", function()

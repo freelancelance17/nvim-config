@@ -169,11 +169,26 @@ return {
       -- Scroll keymaps for hover/signature floats
       views = {
         hover = {
-          -- Rounded frame + 1-cell side padding to match cmp's side_padding=1
-          -- (padding order: top, right, bottom, left).
-          border = { style = "rounded", padding = { 0, 1, 0, 1 } },
-          position = { row = 2, col = 0 },
-          size = { max_width = 80, max_height = 20 },
+          -- Full-width info bar instead of the default small cursor-hugging box.
+          -- relative="win" (default is "cursor") so col=0 means the window's left
+          -- edge and size.width can be a percentage of the window; Neovim's
+          -- cursor-relative floats can't also pin the left edge to a window-relative
+          -- column, so this trades "box tracks the cursor's line" for "box spans the
+          -- full buffer width" — it now docks just under the top of the window.
+          -- No border (style="none"): a visible border/side-padding needs a couple
+          -- of columns beyond the requested width, which would get clipped at the
+          -- window edges when width is 100%. Top/bottom padding only for breathing
+          -- room; NormalFloat background marks the box instead of a frame.
+          -- anchor pinned explicitly: Noice's default anchor="auto" only resolves
+          -- to a real value when size.width/height are plain numbers (see
+          -- NuiView:update_options in noice/view/nui.lua) — with a percentage
+          -- width like ours it silently leaves anchor as the literal string
+          -- "auto", which nvim_open_win then rejects with "Invalid anchor 'auto'".
+          relative = "win",
+          anchor = "NW",
+          position = { row = 1, col = 0 },
+          size = { width = "100%", max_height = 20 },
+          border = { style = "none", padding = { 1, 0, 1, 0 } },
         },
       },
       keys = {
