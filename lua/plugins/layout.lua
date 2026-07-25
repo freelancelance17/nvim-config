@@ -8,6 +8,10 @@
 return {
   {
     "folke/edgy.nvim",
+    -- Master switch (lua/features.lua): when false, edgy never loads and the
+    -- neo-tree / Trouble / toggleterm windows open as plain splits instead of
+    -- docked panels. Individual panels are toggled in `opts` below.
+    enabled = require("features").layout.enabled,
     event = "VeryLazy",
     init = function()
       -- Recommended by edgy so splits behave predictably with fixed edgebars.
@@ -131,39 +135,53 @@ return {
         return orig_foreach(ordered, fn)
       end
     end,
-    opts = {
-      animate = { enabled = false }, -- snap panels into place, no slide animation
-      -- Layout edges. Bottom panels stack in array order (diagnostics above terminal).
-      left = {
-        {
+    -- Built as a function so each panel can be toggled independently via
+    -- lua/features.lua without editing the (kept-intact) panel definitions.
+    -- Bottom panels stack in insertion order (diagnostics above terminal).
+    opts = function()
+      local L = require("features").layout
+      local opts = {
+        animate = { enabled = false }, -- snap panels into place, no slide animation
+        left = {},
+        right = {},
+        bottom = {},
+      }
+
+      if L.filetree then
+        table.insert(opts.left, {
           title = "Files",
           ft = "neo-tree",
           filter = function(buf)
             return vim.b[buf].neo_tree_source == "filesystem"
           end,
           size = { width = 35 },
-        },
-      },
-      right = {
-        {
+        })
+      end
+
+      if L.symbols then
+        table.insert(opts.right, {
           title = "Symbols",
           ft = "trouble",
           filter = function(_buf, win)
             return vim.w[win].trouble and vim.w[win].trouble.mode == "symbols"
           end,
           size = { width = 40 },
-        },
-      },
-      bottom = {
-        {
+        })
+      end
+
+      if L.diagnostics then
+        table.insert(opts.bottom, {
           title = "Diagnostics",
           ft = "trouble",
           filter = function(_buf, win)
             return vim.w[win].trouble and vim.w[win].trouble.mode == "diagnostics"
           end,
           size = { height = 20 },
-        },
-        {
+        })
+      end
+
+      if L.terminal then
+        table.insert(opts.bottom, {
           title = "Terminal",
           ft = "toggleterm",
           filter = function(_buf, win)
@@ -171,8 +189,10 @@ return {
             return vim.api.nvim_win_get_config(win).relative == ""
           end,
           size = { height = 16 },
-        },
-      },
-    },
+        })
+      end
+
+      return opts
+    end,
   },
 }

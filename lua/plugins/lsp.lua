@@ -1,3 +1,5 @@
+if not require("features").plugins.lsp then return {} end
+
 return {
   {
     "neovim/nvim-lspconfig",
@@ -177,16 +179,19 @@ return {
         end
         return false
       end
-      vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function()
-          if not trouble_mode_visible("diagnostics") then
-            vim.cmd("Trouble diagnostics focus=false")
-          end
-          if not trouble_mode_visible("symbols") then
-            vim.cmd("Trouble symbols focus=false")
-          end
-        end,
-      })
+      local layout = require("features").layout
+      if layout.auto_open_panels then
+        vim.api.nvim_create_autocmd("LspAttach", {
+          callback = function()
+            if layout.diagnostics and not trouble_mode_visible("diagnostics") then
+              vim.cmd("Trouble diagnostics focus=false")
+            end
+            if layout.symbols and not trouble_mode_visible("symbols") then
+              vim.cmd("Trouble symbols focus=false")
+            end
+          end,
+        })
+      end
     end,
   },
 }

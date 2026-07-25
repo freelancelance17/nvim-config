@@ -1,3 +1,5 @@
+if not require("features").plugins.csharp then return {} end
+
 return {
   -- roslyn.nvim: wires up Microsoft's official Roslyn language server
   -- (Microsoft.CodeAnalysis.LanguageServer) — the same one VS Code's C# extension uses.

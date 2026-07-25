@@ -1,3 +1,5 @@
+if not require("features").plugins.rust then return {} end
+
 return {
   -- rustaceanvim: actively maintained rust-analyzer integration
   -- replaces the archived simrat39/rust-tools.nvim
@@ -301,7 +303,10 @@ return {
       vim.keymap.set("n", "<F10>",     dap.step_over,                           { desc = "Debug: step over" })
       vim.keymap.set("n", "<F11>",     dap.step_into,                           { desc = "Debug: step into" })
       vim.keymap.set("n", "<S-F11>",   dap.step_out,                            { desc = "Debug: step out" })
-      vim.keymap.set("n", "<S-F5>",    dap.close,                               { desc = "Debug: stop" })
+      -- terminate (not close): close() drops the session without the adapter
+      -- sending terminated/exited events, so the dapui_config listeners below
+      -- would never fire and the layout wouldn't reset
+      vim.keymap.set("n", "<S-F5>",    dap.terminate,                           { desc = "Debug: stop" })
       vim.keymap.set("n", "<C-S-F5>",  dap.restart,                             { desc = "Debug: restart" })
       vim.keymap.set("n", "<space>gb", dap.run_to_cursor,                       { desc = "Debug: run to cursor" })
 
@@ -328,10 +333,71 @@ return {
         vim.cmd("edit " .. vim.fn.stdpath("state") .. "/dap.log")
       end, { desc = "Debug: open log" })
 
-      dap.listeners.before.attach.dapui_config = function() ui.open() end
-      dap.listeners.before.launch.dapui_config = function() ui.open() end
-      dap.listeners.before.event_terminated.dapui_config = function() ui.close() end
-      dap.listeners.before.event_exited.dapui_config = function() ui.close() end
+      -- Close the docked edgy panels (file tree, Trouble, terminal) before
+      -- dap-ui opens — otherwise its splits get squeezed into whatever middle
+      -- area the panels leave over. dap-ui's windows are deliberately NOT
+      -- registered with edgy: two layout engines fighting over the same
+      -- windows rearranges them unpredictably. Whatever was open at launch is
+      -- remembered and restored when the session ends.
+      local closed_panels = {}
+      local function close_docked_panels()
+        closed_panels = {}
+        for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+          if vim.api.nvim_win_get_config(win).relative == "" then
+            local ft = vim.bo[vim.api.nvim_win_get_buf(win)].filetype
+            if ft == "neo-tree" then
+              closed_panels.neotree = true
+              pcall(vim.cmd, "Neotree close")
+            elseif ft == "trouble" then
+              -- close by the window's real mode — edgy desyncs Trouble's own
+              -- is_open()/get() tracking (see CLAUDE.md)
+              local t = vim.w[win].trouble
+              if t then
+                closed_panels.trouble = closed_panels.trouble or {}
+                table.insert(closed_panels.trouble, t.mode)
+                pcall(function() require("trouble").close(t.mode) end)
+              end
+            elseif ft == "toggleterm" then
+              closed_panels.terminal = true
+              pcall(vim.api.nvim_win_close, win, false)
+            end
+          end
+        end
+      end
+
+      local function restore_docked_panels()
+        local cur = vim.api.nvim_get_current_win()
+        if closed_panels.neotree then pcall(vim.cmd, "Neotree show") end
+        for _, mode in ipairs(closed_panels.trouble or {}) do
+          pcall(function() require("trouble").open({ mode = mode, focus = false }) end)
+        end
+        if closed_panels.terminal then pcall(vim.cmd, "ToggleTerm") end
+        closed_panels = {}
+        -- ToggleTerm focuses the reopened terminal and enters terminal-insert
+        -- mode (its insert hooks run on deferred autocmds, so plain stopinsert
+        -- here is too early) — schedule the focus/mode reset to run after them
+        vim.schedule(function()
+          if vim.api.nvim_win_is_valid(cur) then
+            pcall(vim.api.nvim_set_current_win, cur)
+          end
+          vim.cmd.stopinsert()
+        end)
+      end
+
+      local function open_dapui()
+        close_docked_panels()
+        ui.open()
+      end
+
+      local function close_dapui()
+        ui.close()
+        restore_docked_panels()
+      end
+
+      dap.listeners.before.attach.dapui_config = open_dapui
+      dap.listeners.before.launch.dapui_config = open_dapui
+      dap.listeners.before.event_terminated.dapui_config = close_dapui
+      dap.listeners.before.event_exited.dapui_config = close_dapui
     end,
   },
 }

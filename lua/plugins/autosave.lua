@@ -6,6 +6,8 @@
 -- ruff LSP format-on-save (lua/plugins/lsp.lua) runs and rust-analyzer gets
 -- textDocument/didSave — that's what triggers its cargo-check diagnostics, so
 -- with autosave the diagnostics panel refreshes whenever you pause typing.
+if not require("features").plugins.autosave then return {} end
+
 return {
   "okuuva/auto-save.nvim",
   version = "^1",

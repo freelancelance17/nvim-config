@@ -35,7 +35,7 @@ vim.o.expandtab = true
 -- startup window, and windows created later (plugin panels, new tabs) fell
 -- back to the built-in defaults.
 vim.o.number = true
-vim.o.relativenumber = true
+vim.o.relativenumber = false
 vim.o.signcolumn = "yes"
 vim.o.wrap = true
 vim.opt.laststatus = 3

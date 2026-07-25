@@ -1,3 +1,5 @@
+if not require("features").plugins.terminal then return {} end
+
 return {
   {
     "akinsho/toggleterm.nvim",

@@ -5,26 +5,32 @@
 
 -- Open the IDE panels once at startup, then return focus to the editing window.
 -- edgy.nvim (see plugins/layout.lua) handles all placement, sizing, ordering, and
--- pinning — here we just trigger each panel to open.
-vim.api.nvim_create_autocmd("VimEnter", {
-  once = true,
-  callback = function()
-    vim.schedule(function()
-      local main_win = vim.api.nvim_get_current_win()
-      pcall(vim.cmd, "Neotree show")
-      pcall(vim.cmd, "Trouble symbols open focus=false")
-      pcall(vim.cmd, "Trouble diagnostics open focus=false")
-      pcall(vim.cmd, "ToggleTerm")
-      if vim.api.nvim_win_is_valid(main_win) then
-        vim.api.nvim_set_current_win(main_win)
-      end
-      -- ToggleTerm runs `startinsert` when it opens; because this whole opener is
-      -- async-scheduled, that insert lands after we hand focus back to the editor.
-      -- Defer a stopinsert so we always start in normal mode in the main buffer.
-      vim.schedule(function() vim.cmd("stopinsert") end)
-    end)
-  end,
-})
+-- pinning — here we just trigger each panel to open. This opener is what actually
+-- SPAWNS the windows (edgy only docks windows that get opened), so it is gated on
+-- the same feature flags: with layout.enabled off you start on a single buffer,
+-- and each panel flag independently controls whether its window opens at startup.
+local layout = require("features").layout
+if layout.enabled then
+  vim.api.nvim_create_autocmd("VimEnter", {
+    once = true,
+    callback = function()
+      vim.schedule(function()
+        local main_win = vim.api.nvim_get_current_win()
+        if layout.filetree then pcall(vim.cmd, "Neotree show") end
+        if layout.symbols then pcall(vim.cmd, "Trouble symbols open focus=false") end
+        if layout.diagnostics then pcall(vim.cmd, "Trouble diagnostics open focus=false") end
+        if layout.terminal then pcall(vim.cmd, "ToggleTerm") end
+        if vim.api.nvim_win_is_valid(main_win) then
+          vim.api.nvim_set_current_win(main_win)
+        end
+        -- ToggleTerm runs `startinsert` when it opens; because this whole opener is
+        -- async-scheduled, that insert lands after we hand focus back to the editor.
+        -- Defer a stopinsert so we always start in normal mode in the main buffer.
+        vim.schedule(function() vim.cmd("stopinsert") end)
+      end)
+    end,
+  })
+end
 
 -- Word wrap for text files
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
@@ -34,6 +40,12 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   end,
 })
 
+-- The remaining autocmds in this file exist ONLY to work around edgy.nvim's
+-- window-desync quirks (diagnostics follow, post-float focus restore). With the
+-- IDE layout off (lua/features.lua) edgy never docks anything, so there's nothing
+-- to desync — skip registering them entirely rather than run them on every cursor
+-- move / window close for no benefit.
+if layout.enabled then
 -- Make the docked diagnostics panel follow the cursor.
 -- Trouble has a built-in `follow` (move the panel to the current line's
 -- diagnostic), but edgy.nvim relocates Trouble's window with win_splitmove, which
@@ -155,4 +167,5 @@ vim.api.nvim_create_autocmd("WinClosed", {
     end)
   end,
 })
+end -- if layout.enabled
 

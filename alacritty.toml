@@ -28,7 +28,12 @@ opacity = 1.0
 size = 13.0
 
 [font.normal]
-family = "3270 Nerd Font Mono"
+# Coding font (preserved — swap back by uncommenting these and commenting Cousine)
+# family = "3270 Nerd Font Mono"
+# style = "Regular"
+
+# Writing font for vim-pencil / prose (true italic + bold variants)
+family = "Cousine Nerd Font Propo"
 style = "Regular"
 
 [colors.primary]

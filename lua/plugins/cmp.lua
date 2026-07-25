@@ -1,3 +1,5 @@
+if not require("features").plugins.cmp then return {} end
+
 return {
   {
     -- blink.cmp: modern, fast completion engine. Replaces nvim-cmp and its

@@ -1,3 +1,5 @@
+if not require("features").plugins.snacks then return {} end
+
 return {
   "folke/snacks.nvim",
   priority = 1000,

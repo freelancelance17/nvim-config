@@ -1,3 +1,5 @@
+if not require("features").plugins.editor then return {} end
+
 return {
   {
     "folke/which-key.nvim",

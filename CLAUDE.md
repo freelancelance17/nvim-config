@@ -29,6 +29,31 @@ config-level option.
 - `lua/options.lua`, `lua/keymaps.lua`, `lua/autocommands.lua` — core settings
 - `lua/plugins/*.lua` — one file per concern, each returns a lazy spec; auto-imported
 - `lazy-lock.json` — pinned plugin versions (commit lockfile changes deliberately)
+- `lua/features.lua` — feature flags: the single place to turn plugins and IDE
+  layout panels on/off without deleting their config (see below)
+
+## Feature flags (`lua/features.lua`)
+
+One module of booleans is the master switch for optional behavior; flip a value and
+restart nvim. Nothing is removed — disabled config stays on disk, just dormant.
+
+- `M.plugins.<name>` — one flag per file in `lua/plugins/`, keyed by filename. Each
+  plugin file guards itself at the very top so a disabled concern hands lazy nothing:
+  ```lua
+  if not require("features").plugins.<name> then return {} end
+  ```
+  **When adding a new plugin file, add its flag to `features.lua` and this guard
+  line** (matching the filename key), or the toggle system silently skips it.
+- `M.layout.*` — the edgy.nvim IDE layout. `enabled` is the master switch (off = no
+  docking, windows open as plain splits); `filetree`/`symbols`/`diagnostics`/
+  `terminal` toggle individual panels; `auto_open_panels` controls the `LspAttach`
+  opener that pops diagnostics+symbols when you open a source file.
+- The layout flags are read in three places that must stay consistent: the edgy spec
+  and panel list (`lua/plugins/layout.lua`), the startup panel opener and the
+  edgy-only workaround autocmds (`lua/autocommands.lua`, all gated on
+  `layout.enabled`), and the `LspAttach` auto-opener (`lua/plugins/lsp.lua`).
+- `plugins.filetree`/`plugins.terminal` (remove the plugin) are distinct from
+  `layout.filetree`/`layout.terminal` (keep the plugin, just don't dock/auto-open it).
 
 ## Conventions
 

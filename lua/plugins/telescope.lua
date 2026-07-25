@@ -1,3 +1,5 @@
+if not require("features").plugins.telescope then return {} end
+
 return {
   {
     "nvim-telescope/telescope.nvim",

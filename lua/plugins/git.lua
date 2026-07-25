@@ -1,3 +1,5 @@
+if not require("features").plugins.git then return {} end
+
 return {
   "sindrets/diffview.nvim",
   {

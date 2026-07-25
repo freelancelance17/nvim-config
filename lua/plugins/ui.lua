@@ -1,3 +1,5 @@
+if not require("features").plugins.ui then return {} end
+
 return {
   -- Themes
   -- nightfox.nvim is the active colorscheme. lazy=false + high priority so it
@@ -224,6 +226,12 @@ return {
   {
     "romgrk/barbar.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
+    -- Must load eagerly. barbar hooks buffer-creation events and owns the tabline;
+    -- if lazy-loaded (e.g. only via `keys`) it isn't active when the first buffer
+    -- opens at startup, so that buffer's name doesn't appear in the tabline until a
+    -- later buffer event fires — i.e. until you switch files. lazy = false makes it
+    -- load before the initial buffer, so the startup file shows immediately.
+    lazy = false,
     keys = {
       { "<C-left>", "<Cmd>BufferPrevious<CR>", desc = "Previous buffer" },
       { "<C-right>", "<Cmd>BufferNext<CR>", desc = "Next buffer" },

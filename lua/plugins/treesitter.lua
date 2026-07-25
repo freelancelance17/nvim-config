@@ -1,3 +1,5 @@
+if not require("features").plugins.treesitter then return {} end
+
 return {
   "nvim-treesitter/nvim-treesitter",
   -- MUST stay on `main` for Neovim 0.12: the `master` branch is in maintenance
