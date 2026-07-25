@@ -12,7 +12,7 @@ return {
       { "<leader>fs", function() require("telescope.builtin").live_grep() end, desc = "Live grep" },
       { "<leader>fh", function() require("telescope.builtin").help_tags() end, desc = "Help tags" },
       { "<leader>fb", function() require("telescope.builtin").buffers() end, desc = "Buffers" },
-      { "<leader>fr", "<cmd>Telescope projects<CR>", desc = "Projects" },
+      { "<leader>fr", function() require("telescope.builtin").oldfiles() end, desc = "Recent files" },
       { "<leader>fd", "<cmd>Telescope lsp_definitions<CR>", desc = "LSP definitions" },
       { "<leader>fu", function() require("telescope.builtin").lsp_references() end, desc = "LSP references" },
       { "<leader>fw", function() require("telescope.builtin").grep_string({ search = vim.fn.expand("<cword>") }) end, desc = "Grep word under cursor" },

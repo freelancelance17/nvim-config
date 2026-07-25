@@ -47,51 +47,49 @@ return {
 
       -- Exclude rust_analyzer: rustaceanvim owns that LSP client.
       -- Without this, mason-lspconfig auto-enables rust_analyzer and you get two instances.
+      -- pyright/jedi are excluded too: basedpyright replaced them (see below), but a
+      -- leftover Mason install would otherwise be auto-started and double up on Python
+      -- diagnostics/hover. Safe to drop these once you `:MasonUninstall` them.
       require("mason-lspconfig").setup({
         automatic_enable = {
-          exclude = { "rust_analyzer" },
+          exclude = { "rust_analyzer", "pyright", "jedi_language_server" },
         },
       })
 
       local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-      -- ── Pyright ────────────────────────────────────────────────────────────
+      -- ── basedpyright ───────────────────────────────────────────────────────
       -- Primary Python LSP: type checking, completions, go-to-def, hover.
-      vim.lsp.config.pyright = {
+      -- basedpyright is the maintained community fork of pyright — same engine,
+      -- but ships the inlay-hint / type-inference features pyright gates behind
+      -- the proprietary Pylance. It reads settings under `basedpyright.analysis`.
+      -- Install with `:MasonInstall basedpyright`. Replaces the old pyright +
+      -- jedi_language_server pairing (jedi was redundant with pyright's completions).
+      vim.lsp.config.basedpyright = {
         capabilities = capabilities,
         on_attach = function(client, bufnr)
           -- Enable inlay hints per-buffer (mirrors the Rust setup)
           vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
         end,
         settings = {
-          python = {
+          basedpyright = {
             analysis = {
-              -- "basic" catches most real errors without being noisy
+              -- "basic" catches most real errors without being noisy (basedpyright
+              -- defaults to the stricter "recommended", so set this explicitly)
               typeCheckingMode = "basic",
               -- Auto-search for installed packages
               autoSearchPaths = true,
               useLibraryCodeForTypes = true,
-              -- Inlay hints
+              -- Inlay hints (basedpyright's keys differ from pyright/Pylance)
               inlayHints = {
-                variableTypes = true,        -- `x: int` after let-style assignments
-                functionReturnTypes = true,  -- `-> str` after function defs
-                parameterNames = true,       -- `foo(x=1)` call-site parameter labels
-                parameterTypes = false,      -- off: param types are noisy in sigs
+                variableTypes = true,      -- `x: int` after let-style assignments
+                functionReturnTypes = true,-- `-> str` after function defs
+                callArgumentNames = true,  -- `foo(x=1)` call-site parameter labels
+                genericTypes = false,      -- off: noisy in generic call sites
               },
             },
           },
         },
-      }
-
-      -- ── Jedi ───────────────────────────────────────────────────────────────
-      -- Optional secondary completions server. Only runs if jedi-language-server
-      -- is installed (`pip install jedi-language-server` or via Mason).
-      -- definitionProvider disabled to avoid competing with pyright on gd.
-      vim.lsp.config.jedi_language_server = {
-        capabilities = capabilities,
-        on_attach = function(client, bufnr)
-          client.server_capabilities.definitionProvider = false
-        end,
       }
 
       -- ── Ruff ───────────────────────────────────────────────────────────────
@@ -129,7 +127,7 @@ return {
       vim.lsp.config.ts_ls = {}
 
       -- Enable all servers; LSP simply won't start for servers that aren't installed
-      vim.lsp.enable({ "pyright", "jedi_language_server", "ruff", "ts_ls" })
+      vim.lsp.enable({ "basedpyright", "ruff", "ts_ls" })
 
       -- ── Diagnostics ────────────────────────────────────────────────────────
       vim.diagnostic.config({
