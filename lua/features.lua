@@ -29,6 +29,7 @@ M.plugins = {
   filetree = true, -- neo-tree (left dock)
   snacks = true, -- snacks.nvim (indent guides, words, gitbrowse)
   autosave = true, -- auto-save.nvim
+  claude = true, -- claudecode.nvim (Claude Code IDE integration: diffs, selection)
 
   -- ── Core (disabling may break other plugins) ────────────────────────────
   lsp = true, -- nvim-lspconfig + mason + format-on-save
